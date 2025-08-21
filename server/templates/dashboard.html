@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="mb-4">DLP Event Dashboard</h1>
+
+<!-- Back Button -->
+<a href="javascript:history.back()" class="btn btn-secondary mb-3">← Back</a>
+
+<!-- Filter Section -->
+<form method="GET" action="{{ url_for('dashboard') }}" class="mb-4">
+    <div class="row g-3">
+        <div class="col-md-3">
+            <label for="ai_filter" class="form-label">AI Classification:</label>
+            <select name="ai_filter" id="ai_filter" class="form-select">
+                <option value="">All Classifications</option>
+                {% for label in ai_labels %}
+                <option value="{{ label }}" {% if current_ai_filter == label %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="device_filter" class="form-label">Device:</label>
+            <select name="device_filter" id="device_filter" class="form-select">
+                <option value="">All Devices</option>
+                {% for device in devices %}
+                <option value="{{ device }}" {% if current_device_filter == device %}selected{% endif %}>{{ device }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="event_type_filter" class="form-label">Event Type:</label>
+            <select name="event_type_filter" id="event_type_filter" class="form-select">
+                <option value="">All Types</option>
+                {% for event_type in event_types %}
+                <option value="{{ event_type }}" {% if current_event_type_filter == event_type %}selected{% endif %}>{{ event_type }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="user_filter" class="form-label">User Email:</label>
+            <input type="text" name="user_filter" id="user_filter" class="form-control" 
+                   placeholder="Search user email..." value="{{ current_user_filter }}">
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+            <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">Clear Filters</a>
+        </div>
+    </div>
+    <!-- Hidden field to maintain current page when filtering -->
+    <input type="hidden" name="page" value="1">
+</form>
+
+<!-- Filter Status -->
+{% if current_ai_filter or current_device_filter or current_event_type_filter or current_user_filter %}
+<div class="alert alert-info">
+    <strong>Active Filters:</strong>
+    {% if current_ai_filter %}<span class="badge bg-primary me-1">AI: {{ current_ai_filter }}</span>{% endif %}
+    {% if current_device_filter %}<span class="badge bg-secondary me-1">Device: {{ current_device_filter }}</span>{% endif %}
+    {% if current_event_type_filter %}<span class="badge bg-success me-1">Type: {{ current_event_type_filter }}</span>{% endif %}
+    {% if current_user_filter %}<span class="badge bg-warning me-1">User: {{ current_user_filter }}</span>{% endif %}
+    <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-outline-secondary ms-2">Clear All</a>
+</div>
+{% endif %}
+
+<!-- Events Table -->
+<div class="table-responsive">
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+            <tr>
+                <th>Time</th>
+                <th>Device</th>
+                <th>User</th>
+                <th>Event Type</th>
+                <th>Target</th>
+                <th>Snippet</th>
+                <th>Policy</th>
+                <th>AI Label</th>
+                <th>AI Confidence</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in events %}
+            <tr>
+                <td>{{ e.created_at }}</td>
+                <td>{{ e.device_id }}</td>
+                <td>{{ e.user_email }}</td>
+                <td>
+                    <span class="badge bg-primary">{{ e.event_type }}</span>
+                </td>
+                <td>
+                    <div class="text-truncate" style="max-width: 150px;" title="{{ e.target }}">
+                        {{ e.target }}
+                    </div>
+                </td>
+                <td>
+                    <div class="text-truncate" style="max-width: 200px;" title="{{ e.snippet }}">
+                        {{ e.snippet }}
+                    </div>
+                </td>
+                <td>{{ e.policy_id or 'N/A' }}</td>
+                <td>
+                    {% if e.ai_label %}
+                        <span class="badge {% if e.ai_label == 'Confidential' %}bg-danger{% elif e.ai_label == 'Sensitive' %}bg-warning{% elif e.ai_label == 'Public' %}bg-success{% else %}bg-secondary{% endif %}">
+                            {{ e.ai_label }}
+                        </span>
+                    {% else %}
+                        <span class="text-muted">N/A</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if e.ai_confidence %}
+                        {{ "%.1f"|format(e.ai_confidence * 100) }}%
+                    {% else %}
+                        <span class="text-muted">N/A</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="9" class="text-center">No events found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<nav aria-label="Dashboard pagination">
+    <ul class="pagination justify-content-center">
+        {% set filter_params = [] %}
+        {% if current_ai_filter %}{% set _ = filter_params.append(('ai_filter', current_ai_filter)) %}{% endif %}
+        {% if current_device_filter %}{% set _ = filter_params.append(('device_filter', current_device_filter)) %}{% endif %}
+        {% if current_event_type_filter %}{% set _ = filter_params.append(('event_type_filter', current_event_type_filter)) %}{% endif %}
+        {% if current_user_filter %}{% set _ = filter_params.append(('user_filter', current_user_filter)) %}{% endif %}
+        
+        {% if has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('dashboard', page=1, **dict(filter_params)) }}">First</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('dashboard', page=prev_page, **dict(filter_params)) }}">Previous</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">First</span>
+        </li>
+        <li class="page-item disabled">
+            <span class="page-link">Previous</span>
+        </li>
+        {% endif %}
+        
+        <!-- Page numbers -->
+        {% set start_page = [1, current_page - 2] | max %}
+        {% set end_page = [total_pages, current_page + 2] | min %}
+        
+        {% for page_num in range(start_page, end_page + 1) %}
+        <li class="page-item {% if page_num == current_page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('dashboard', page=page_num, **dict(filter_params)) }}">{{ page_num }}</a>
+        </li>
+        {% endfor %}
+        
+        {% if has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('dashboard', page=next_page, **dict(filter_params)) }}">Next</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('dashboard', page=total_pages, **dict(filter_params)) }}">Last</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">Next</span>
+        </li>
+        <li class="page-item disabled">
+            <span class="page-link">Last</span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+
+<div class="text-center mt-2">
+    <small class="text-muted">
+        Showing page {{ current_page }} of {{ total_pages }} 
+        ({{ events|length }} events on this page, {{ total_events }} total)
+        {% if current_ai_filter or current_device_filter or current_event_type_filter or current_user_filter %}
+        - Filtered Results
+        {% endif %}
+    </small>
+</div>
+{% endif %}
+
+<!-- Chart -->
+<h2 class="mt-5">AI Classification Summary</h2>
+<div class="row">
+    <div class="col-md-8">
+        <canvas id="classificationChart" width="400" height="200"></canvas>
+    </div>
+    <div class="col-md-4">
+        <h5>Quick Stats</h5>
+        <div class="card">
+            <div class="card-body">
+                <p><strong>Total Events:</strong> {{ total_events }}</p>
+                <p><strong>Current Page:</strong> {{ current_page }} of {{ total_pages }}</p>
+                <p><strong>Events on Page:</strong> {{ events|length }}</p>
+                {% if current_ai_filter or current_device_filter or current_event_type_filter or current_user_filter %}
+                <p><small class="text-muted">Results are filtered</small></p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- JS Chart -->
+<script>
+    // Chart Data
+    const labels = {{ chart_labels|safe }};
+    const values = {{ chart_values|safe }};
+
+    if (labels.length > 0 && values.length > 0) {
+        const ctx = document.getElementById('classificationChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: values,
+                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#6f42c1', '#20c997'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    title: {
+                        display: true,
+                        text: '{% if current_ai_filter or current_device_filter or current_event_type_filter or current_user_filter %}Filtered {% endif %}AI Classifications'
+                    }
+                }
+            }
+        });
+    } else {
+        document.getElementById('classificationChart').style.display = 'none';
+        document.querySelector('h2.mt-5').innerHTML = '<em>No data available for chart</em>';
+    }
+</script>
+{% endblock %}

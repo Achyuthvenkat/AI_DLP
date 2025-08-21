@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Edit Assignment</h2>
+
+<form method="POST">
+  <div class="mb-3">
+    <label for="policy_id" class="form-label">Policy</label>
+    <select name="policy_id" id="policy_id" class="form-control" required>
+      {% for policy in policies %}
+        <option value="{{ policy.id }}" {% if policy.id == assignment.policy_id %}selected{% endif %}>
+          {{ policy.name }}
+        </option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label for="scope" class="form-label">Scope</label>
+    <select name="scope" id="scope" class="form-control" required onchange="toggleEditScopeInput()">
+      <option value="User" {% if assignment.user_email %}selected{% endif %}>User</option>
+      <option value="Device" {% if assignment.device_id %}selected{% endif %}>Device</option>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label for="entity" class="form-label">Email or Device ID</label>
+    <input type="text" name="entity" id="entity" class="form-control" required
+           value="{{ assignment.user_email or assignment.device_id }}">
+  </div>
+
+  <button type="submit" class="btn btn-success">Update</button>
+  <a href="{{ url_for('assignments_page') }}" class="btn btn-secondary">Cancel</a>
+</form>
+
+<script>
+function toggleEditScopeInput() {
+  const scope = document.getElementById("scope").value;
+  const label = document.querySelector("label[for='entity']");
+  if (scope === "User") {
+    label.textContent = "User Email";
+  } else {
+    label.textContent = "Device ID";
+  }
+}
+</script>
+{% endblock %}

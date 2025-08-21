@@ -1,0 +1,348 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Events</h2>
+    <a href="javascript:history.back()" class="btn btn-secondary">← Back</a>
+</div>
+
+<!-- Filter Section -->
+<form method="GET" action="{{ url_for('events_page') }}" class="mb-4">
+    <div class="row g-3">
+        <div class="col-md-3">
+            <label for="device_filter" class="form-label">Device:</label>
+            <select name="device_filter" id="device_filter" class="form-select">
+                <option value="">All Devices</option>
+                {% for device in devices %}
+                <option value="{{ device }}" {% if current_device_filter == device %}selected{% endif %}>{{ device }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="event_type_filter" class="form-label">Event Type:</label>
+            <select name="event_type_filter" id="event_type_filter" class="form-select">
+                <option value="">All Types</option>
+                {% for event_type in event_types %}
+                <option value="{{ event_type }}" {% if current_event_type_filter == event_type %}selected{% endif %}>{{ event_type }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="ai_label_filter" class="form-label">AI Label:</label>
+            <select name="ai_label_filter" id="ai_label_filter" class="form-select">
+                <option value="">All Labels</option>
+                {% for label in ai_labels %}
+                <option value="{{ label }}" {% if current_ai_label_filter == label %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="user_filter" class="form-label">User Email:</label>
+            <input type="text" name="user_filter" id="user_filter" class="form-control" 
+                   placeholder="Search user email..." value="{{ current_user_filter }}">
+        </div>
+        <div class="col-12">
+            <button type="submit" class="btn btn-primary">Apply Filters</button>
+            <a href="{{ url_for('events_page') }}" class="btn btn-outline-secondary">Clear Filters</a>
+        </div>
+    </div>
+    <!-- Hidden field to reset to page 1 when filtering -->
+    <input type="hidden" name="page" value="1">
+</form>
+
+<!-- Filter Status -->
+{% if current_device_filter or current_event_type_filter or current_ai_label_filter or current_user_filter %}
+<div class="alert alert-info">
+    <strong>Active Filters:</strong>
+    {% if current_device_filter %}<span class="badge bg-secondary me-1">Device: {{ current_device_filter }}</span>{% endif %}
+    {% if current_event_type_filter %}<span class="badge bg-success me-1">Type: {{ current_event_type_filter }}</span>{% endif %}
+    {% if current_ai_label_filter %}<span class="badge bg-primary me-1">AI: {{ current_ai_label_filter }}</span>{% endif %}
+    {% if current_user_filter %}<span class="badge bg-warning me-1">User: {{ current_user_filter }}</span>{% endif %}
+    <a href="{{ url_for('events_page') }}" class="btn btn-sm btn-outline-secondary ms-2">Clear All</a>
+</div>
+{% endif %}
+
+<!-- Events Table -->
+<div class="table-responsive">
+    <table class="table table-bordered table-striped" id="eventsTable">
+        <thead class="table-dark">
+            <tr>
+                <th>ID</th>
+                <th>Timestamp</th>
+                <th>Device ID</th>
+                <th>User Email</th>
+                <th>Event Type</th>
+                <th>Target</th>
+                <th>Snippet</th>
+                <th>Detector Hits</th>
+                <th>AI Label</th>
+                <th>AI Confidence</th>
+                <th>Policy</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for event in events %}
+            <tr>
+                <td>{{ event.id }}</td>
+                <td>{{ event.created_at }}</td>
+                <td>{{ event.device_id }}</td>
+                <td>{{ event.user_email }}</td>
+                <td>
+                    <span class="badge bg-primary">{{ event.event_type }}</span>
+                </td>
+                <td>
+                    <div class="text-truncate" style="max-width: 150px;" title="{{ event.target }}">
+                        {{ event.target }}
+                    </div>
+                </td>
+                <td>
+                    <div class="text-truncate" style="max-width: 200px;" title="{{ event.snippet }}">
+                        {{ event.snippet }}
+                    </div>
+                </td>
+                <td>
+                    {% if event.detector_hits %}
+                        <button class="btn btn-sm btn-outline-info" 
+                                data-event-id="{{ event.id }}" 
+                                onclick="showDetectorHitsById('{{ event.id }}')">
+                            View Hits
+                        </button>
+                        <!-- Hidden data for JavaScript -->
+                        <script type="application/json" id="detector-hits-{{ event.id }}">
+                            {{ event.detector_hits|tojson|safe }}
+                        </script>
+                    {% else %}
+                        <span class="text-muted">None</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if event.ai_label %}
+                        <span class="badge {% if event.ai_label == 'Confidential' %}bg-danger{% elif event.ai_label == 'Sensitive' %}bg-warning{% elif event.ai_label == 'Public' %}bg-success{% else %}bg-secondary{% endif %}">
+                            {{ event.ai_label }}
+                        </span>
+                    {% else %}
+                        <span class="text-muted">N/A</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if event.ai_confidence %}
+                        {{ "%.1f"|format(event.ai_confidence * 100) }}%
+                    {% else %}
+                        <span class="text-muted">N/A</span>
+                    {% endif %}
+                </td>
+                <td>{{ event.policy_id or 'N/A' }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="11" class="text-center">No events found</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination -->
+{% if total_pages > 1 %}
+<nav aria-label="Events pagination">
+    <ul class="pagination justify-content-center">
+        {% set filter_params = [] %}
+        {% if current_device_filter %}{% set _ = filter_params.append(('device_filter', current_device_filter)) %}{% endif %}
+        {% if current_event_type_filter %}{% set _ = filter_params.append(('event_type_filter', current_event_type_filter)) %}{% endif %}
+        {% if current_ai_label_filter %}{% set _ = filter_params.append(('ai_label_filter', current_ai_label_filter)) %}{% endif %}
+        {% if current_user_filter %}{% set _ = filter_params.append(('user_filter', current_user_filter)) %}{% endif %}
+        
+        {% if has_prev %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('events_page', page=1, **dict(filter_params)) }}">First</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('events_page', page=prev_page, **dict(filter_params)) }}">Previous</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">First</span>
+        </li>
+        <li class="page-item disabled">
+            <span class="page-link">Previous</span>
+        </li>
+        {% endif %}
+        
+        <!-- Page numbers -->
+        {% set start_page = [1, current_page - 2] | max %}
+        {% set end_page = [total_pages, current_page + 2] | min %}
+        
+        {% for page_num in range(start_page, end_page + 1) %}
+        <li class="page-item {% if page_num == current_page %}active{% endif %}">
+            <a class="page-link" href="{{ url_for('events_page', page=page_num, **dict(filter_params)) }}">{{ page_num }}</a>
+        </li>
+        {% endfor %}
+        
+        {% if has_next %}
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('events_page', page=next_page, **dict(filter_params)) }}">Next</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="{{ url_for('events_page', page=total_pages, **dict(filter_params)) }}">Last</a>
+        </li>
+        {% else %}
+        <li class="page-item disabled">
+            <span class="page-link">Next</span>
+        </li>
+        <li class="page-item disabled">
+            <span class="page-link">Last</span>
+        </li>
+        {% endif %}
+    </ul>
+</nav>
+
+<div class="text-center mt-2">
+    <small class="text-muted">
+        Showing page {{ current_page }} of {{ total_pages }} 
+        ({{ events|length }} events on this page, {{ total_events }} total)
+        {% if current_device_filter or current_event_type_filter or current_ai_label_filter or current_user_filter %}
+        - Filtered Results
+        {% endif %}
+    </small>
+</div>
+{% endif %}
+
+<!-- Detector Hits Modal -->
+<div class="modal fade" id="detectorHitsModal" tabindex="-1" aria-labelledby="detectorHitsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="detectorHitsModalLabel">Detector Hits Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="max-height: 70vh; overflow-y: auto;">
+                <div id="detectorHitsContent" style="overflow-x: auto; white-space: nowrap;">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Debug function to test if JavaScript is working
+    console.log("Events page JavaScript loaded");
+    
+    // New safer function using script tags for JSON data
+    function showDetectorHitsById(eventId) {
+        console.log("showDetectorHitsById called with eventId:", eventId);
+        
+        try {
+            const scriptElement = document.getElementById('detector-hits-' + eventId);
+            if (!scriptElement) {
+                console.error("No script element found for event ID:", eventId);
+                alert("No detector hits data found for event " + eventId);
+                return;
+            }
+            
+            const jsonText = scriptElement.textContent;
+            console.log("Raw JSON text:", jsonText);
+            
+            let detectorHits;
+            try {
+                detectorHits = JSON.parse(jsonText);
+                console.log("Parsed detector hits:", detectorHits);
+            } catch (parseError) {
+                console.error("JSON parse error:", parseError);
+                console.error("Problematic JSON:", jsonText);
+                alert("Error parsing detector hits data: " + parseError.message);
+                return;
+            }
+            
+            showDetectorHits(eventId, detectorHits);
+        } catch (error) {
+            console.error("Error in showDetectorHitsById:", error);
+            alert("Error reading detector hits data: " + error.message);
+        }
+    }
+    
+    function showDetectorHits(eventId, detectorHits) {
+        console.log("showDetectorHits called with:", eventId, detectorHits);
+        
+        try {
+            const content = document.getElementById("detectorHitsContent");
+            if (!content) {
+                console.error("detectorHitsContent element not found");
+                alert("Modal content element not found");
+                return;
+            }
+            
+            let html = "<h6>Event ID: " + eventId + "</h6>";
+            
+            if (detectorHits && typeof detectorHits === 'string'){
+                detectorHits = JSON.parse(detectorHits)
+                console.log("changed type", detectorHits)
+            }
+            if (detectorHits && typeof detectorHits === 'object') {
+                html += "<div class='row'>";
+                for (const [detector, hits] of Object.entries(detectorHits)) {
+                    html += "<div class='col-md-6 mb-3'>";
+                    html += "<h6 class='text-primary'>" + detector + ":</h6>";
+                    if (Array.isArray(hits)) {
+                        html += "<ul class='list-unstyled'>";
+                        hits.forEach(hit => {
+                            if (typeof hit === 'object' && hit.matches) {
+                                console.log("hit is of type object")
+                                html += "<li><small>";
+                                html += "<strong>Line:</strong> " + (hit.line || 'N/A') + "<br>";
+                                html += "<strong>Matches:</strong> " + JSON.stringify(hit.matches) + "<br>";
+                                html += "<strong>Snippet:</strong> " + (hit.snippet || 'N/A');
+                                html += "</small></li><hr>";
+                            } else {
+                                console.log("hit is of not type obj")
+                                html += "<li><small>" + hit + "</small></li>";
+                            }
+                        });
+                        html += "</ul>";
+                    } else {
+                        console.log("hits are not array")
+                        html += "<p><small>" + JSON.stringify(hits) + "</small></p>";
+                    }
+                    html += "</div>";
+                }
+                html += "</div>";
+            } else {
+                console.log("type of detect hit",typeof(detectorHits))
+                console.log("detecteor hits",detectorHits)
+                html += "<p class='text-muted'>No detector hits available</p>";
+            }
+            
+            content.innerHTML = html;
+            
+            // Check if Bootstrap is loaded
+            if (typeof bootstrap === 'undefined') {
+                console.error("Bootstrap is not loaded");
+                alert("Bootstrap is not loaded. Modal cannot be displayed.");
+                return;
+            }
+            
+            // Show modal (Bootstrap 5)
+            const modalElement = document.getElementById('detectorHitsModal');
+            if (!modalElement) {
+                console.error("detectorHitsModal element not found");
+                alert("Modal element not found");
+                return;
+            }
+            
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+            
+        } catch (error) {
+            console.error("Error in showDetectorHits:", error);
+            alert("Error displaying detector hits: " + error.message);
+        }
+    }
+
+    // Test function - you can call this from browser console
+    window.testModal = function() {
+        showDetectorHits("TEST", {"test_detector": ["test hit"]});
+    };
+</script>
+{% endblock %}

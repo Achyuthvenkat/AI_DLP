@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Devices</h2>
+
+<table border="1" cellpadding="8" cellspacing="0" width="100%" style="border-collapse: collapse;">
+    <thead>
+        <tr style="background-color: #f5f5f5;">
+            <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">Device ID</th>
+            <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">Hostname</th>
+            <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">OS</th>
+            <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">Owner</th>
+            <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">Last Seen</th>
+            <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">Status</th>
+            <th style="text-align: center; padding: 12px; border: 1px solid #ddd;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for device in devices %}
+        <tr style="border: 1px solid #ddd;">
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ device.id }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ device.hostname }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ device.os }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ device.owner }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ device.last_seen }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">
+                <span style="padding: 4px 8px; border-radius: 4px; background-color: {% if device.status == 'Active' %}#d4edda; color: #155724{% else %}#f8d7da; color: #721c24{% endif %};">
+                    {{ device.status }}
+                </span>
+            </td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+                <a href="/devices/edit/{{ device.id }}" style="color: #007bff; text-decoration: none; margin-right: 8px;">Edit</a>
+                |
+                <a href="/devices/delete/{{ device.id }}" onclick="return confirm('Delete device?');" style="color: #dc3545; text-decoration: none; margin-left: 8px;">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<div style="margin-top: 20px;">
+    <a href="/devices/add" style="background-color: #007bff; color: white; padding: 10px 16px; text-decoration: none; border-radius: 4px;">Register New Device</a>
+</div>
+{% endblock %}

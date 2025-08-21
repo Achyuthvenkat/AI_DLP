@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Create New Policy</h2>
+
+<form method="POST" style="max-width: 600px;">
+  <table style="width: 100%; border-spacing: 0;">
+    <tr>
+      <td style="padding: 15px 0;">
+        <label for="name" style="font-weight: bold; display: block; margin-bottom: 5px;">Policy Name</label>
+        <input type="text" id="name" name="name" required 
+               style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+      </td>
+    </tr>
+    
+    <tr>
+      <td style="padding: 15px 0;">
+        <label for="description" style="font-weight: bold; display: block; margin-bottom: 5px;">Description</label>
+        <textarea id="description" name="description" rows="3" 
+                  style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; resize: vertical;"></textarea>
+      </td>
+    </tr>
+    
+    <tr>
+      <td style="padding: 15px 0;">
+        <label for="rules" style="font-weight: bold; display: block; margin-bottom: 5px;">Rules (JSON)</label>
+        <textarea id="rules" name="rules" rows="5" required
+                  placeholder='{"type": "email", "keywords": ["confidential", "secret"]}'
+                  style="width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; font-family: monospace; resize: vertical;"></textarea>
+        <small style="color: #666; margin-top: 5px; display: block;">Enter policy rules in JSON format</small>
+      </td>
+    </tr>
+    
+    <tr>
+      <td style="padding: 20px 0;">
+        <button type="submit" style="background-color: #007bff; color: white; padding: 12px 20px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px; font-size: 14px;">
+          Create Policy
+        </button>
+        <a href="{{ url_for('policies_page') }}" style="background-color: #6c757d; color: white; padding: 12px 20px; text-decoration: none; border-radius: 4px; font-size: 14px;">
+          Cancel
+        </a>
+      </td>
+    </tr>
+  </table>
+</form>
+{% endblock %}

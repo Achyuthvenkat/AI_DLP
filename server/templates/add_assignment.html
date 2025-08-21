@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Assign Policy</h2>
+
+<form method="POST">
+  <div class="mb-3">
+    <label for="policy_id" class="form-label">Policy</label>
+    <select name="policy_id" id="policy_id" class="form-control" required>
+      {% for policy in policies %}
+        <option value="{{ policy.id }}">{{ policy.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label class="form-label">Scope</label>
+    <select name="scope" id="scope" class="form-control" required onchange="toggleScopeInput()">
+      <option value="User">User</option>
+      <option value="Device">Device</option>
+    </select>
+  </div>
+
+  <div class="mb-3">
+    <label for="entity" class="form-label">Email or Device ID</label>
+    <input type="text" name="entity" id="entity" class="form-control" required>
+  </div>
+
+  <button type="submit" class="btn btn-primary">Assign</button>
+  <a href="{{ url_for('assignments_page') }}" class="btn btn-secondary">Cancel</a>
+</form>
+
+<script>
+function toggleScopeInput() {
+  const scope = document.getElementById("scope").value;
+  const label = document.querySelector("label[for='entity']");
+  if (scope === "User") {
+    label.textContent = "User Email";
+  } else {
+    label.textContent = "Device ID";
+  }
+}
+</script>
+{% endblock %}

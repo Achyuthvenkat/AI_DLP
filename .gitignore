@@ -1,0 +1,12 @@
+*.env
+*.sql
+*.log
+*.tmp
+
+Dockerfile
+docker-compose.yml
+*.dockerfile
+.dockerignore
+
+.bat
+.log

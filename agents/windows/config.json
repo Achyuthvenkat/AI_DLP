@@ -1,0 +1,11 @@
+{
+  "server_url": "http://127.0.0.1:8000/api/events",
+  "rules": {
+    "email": "[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-z]{2,}",
+    "credit_card": "\\b(?:\\d[ -]*?){13,16}\\b"
+  },
+  "ai_classification": {
+    "enabled": true,
+    "model": "gpt-4"
+  }
+}

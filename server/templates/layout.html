@@ -1,0 +1,28 @@
+<!doctype html>
+<html>
+<head>
+  <title>AI DLP Admin Portal</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <div class="navbar">
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <a href="{{ url_for('events_page') }}">Events</a>
+    <a href="{{ url_for('users_page') }}">Users</a>
+    <a href="{{ url_for('devices_page') }}">Devices</a>
+    <a href="{{ url_for('policies_page') }}">Policies</a>
+    <a href="{{ url_for('assignments_page') }}">Assignments</a>
+    <a href="{{ url_for('logout') }}">Logout</a>
+  </div>
+  <div class="container">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, msg in messages %}
+          <div class="flash {{ category }}">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </div>
+</body>
+</html>

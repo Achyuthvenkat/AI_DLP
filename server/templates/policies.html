@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Policies</h2>
+
+<div style="margin-bottom: 20px;">
+    <a href="{{ url_for('new_policy') }}" style="background-color: #17a2b8; color: white; padding: 10px 16px; text-decoration: none; border-radius: 4px;">+ New Policy</a>
+</div>
+
+<table border="1" cellpadding="8" cellspacing="0" width="100%" style="border-collapse: collapse;">
+    <thead>
+        <tr style="background-color: #f5f5f5;">
+            <th style="text-align: left; padding: 12px; border: 1px solid #ddd; width: 80px;">ID</th>
+            <th style="text-align: left; padding: 12px; border: 1px solid #ddd; width: 200px;">Name</th>
+            <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">Description</th>
+            <th style="text-align: left; padding: 12px; border: 1px solid #ddd; width: 250px;">Rules</th>
+            <th style="text-align: center; padding: 12px; border: 1px solid #ddd; width: 120px;">Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for p in policies %}
+        <tr style="border: 1px solid #ddd;">
+            <td style="padding: 10px; border: 1px solid #ddd; font-weight: bold;">{{ p.id }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd; font-weight: 500;">{{ p.name }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ p.description }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">
+                <code style="background-color: #f8f9fa; padding: 4px; border-radius: 3px; font-size: 12px;">{{ p.rules }}</code>
+            </td>
+            <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
+                <a href="/policies/edit/{{ p.id }}" style="color: #007bff; text-decoration: none; margin-right: 8px;">Edit</a>
+                |
+                <a href="/policies/delete/{{ p.id }}" onclick="return confirm('Delete policy?');" style="color: #dc3545; text-decoration: none; margin-left: 8px;">Delete</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
