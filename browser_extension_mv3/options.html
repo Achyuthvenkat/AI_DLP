@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>AI DLP Browser Extension - Settings</title>
+  <style>
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      color: #333;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .logo {
+      width: 32px;
+      height: 32px;
+      margin-right: 12px;
+      background: #f44336;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+      font-size: 16px;
+    }
+    
+    .section {
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .section:last-child {
+      border-bottom: none;
+    }
+    
+    .section h2 {
+      color: #444;
+      margin-bottom: 16px;
+      font-size: 18px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #333;
+    }
+    
+    input[type="text"], input[type="url"], textarea {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    
+    input[type="text"]:focus, input[type="url"]:focus, textarea:focus {
+      outline: none;
+      border-color: #2196F3;
+      box-shadow: 0 0 0 2px rgba(33, 150, 243, 0.2);
+    }
+    
+    textarea {
+      resize: vertical;
+      min-height: 120px;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    input[type="checkbox"] {
+      margin-right: 8px;
+    }
+    
+    .help-text {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      margin-right: 12px;
+      transition: background-color 0.2s;
+    }
+    
+    .btn-primary {
+      background: #2196F3;
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      background: #1976D2;
+    }
+    
+    .btn-secondary {
+      background: #e0e0e0;
+      color: #333;
+    }
+    
+    .btn-secondary:hover {
+      background: #d0d0d0;
+    }
+    
+    .status-message {
+      padding: 12px;
+      border-radius: 4px;
+      margin-top: 16px;
+      display: none;
+    }
+    
+    .status-success {
+      background: #e8f5e8;
+      color: #2e7d32;
+      border: 1px solid #c8e6c9;
+    }
+    
+    .status-error {
+      background: #ffebee;
+      color: #c62828;
+      border: 1px solid #ffcdd2;
+    }
+    
+    .detection-rules {
+      background: #f9f9f9;
+      padding: 16px;
+      border-radius: 4px;
+      margin-top: 12px;
+    }
+    
+    .rule-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+    }
+    
+    .rule-item:last-child {
+      border-bottom: none;
+    }
+    
+    .rule-name {
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .rule-description {
+      font-size: 12px;
+      color: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>
+      <div class="logo">🛡️</div>
+      AI DLP Browser Extension Settings
+    </h1>
+    
+    <div class="section">
+      <h2>General Settings</h2>
+      
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="enabled" checked>
+          <label for="enabled">Enable DLP protection</label>
+        </div>
+        <div class="help-text">When enabled, the extension will monitor and block sensitive data</div>
+      </div>
+      
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="notifications" checked>
+          <label for="notifications">Show notifications when data is blocked</label>
+        </div>
+        <div class="help-text">Display browser notifications when sensitive data is detected</div>
+      </div>
+      
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="popups" checked>
+          <label for="popups">Show popup alerts on pages</label>
+        </div>
+        <div class="help-text">Display popup alerts directly on web pages when data is blocked</div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>Server Configuration</h2>
+      
+      <div class="form-group">
+        <label for="server-url">DLP Server URL</label>
+        <input type="url" id="server-url" value="http://127.0.0.1:8000" placeholder="http://localhost:8000">
+        <div class="help-text">URL of your DLP management server</div>
+      </div>
+      
+      <div class="form-group">
+        <div class="checkbox-group">
+          <input type="checkbox" id="server-reporting" checked>
+          <label for="server-reporting">Send reports to server</label>
+        </div>
+        <div class="help-text">Report detected incidents to the central DLP server</div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>Detection Rules</h2>
+      
+      <div class="detection-rules">
+        <div class="rule-item">
+          <div>
+            <div class="rule-name">PAN Numbers</div>
+            <div class="rule-description">Indian Permanent Account Numbers (Format: ABCDE1234F)</div>
+          </div>
+          <input type="checkbox" id="rule-pan" checked>
+        </div>
+        
+        <div class="rule-item">
+          <div>
+            <div class="rule-name">Aadhaar Numbers</div>
+            <div class="rule-description">Indian Aadhaar numbers with Verhoeff validation</div>
+          </div>
+          <input type="checkbox" id="rule-aadhaar" checked>
+        </div>
+        
+        <div class="rule-item">
+          <div>
+            <div class="rule-name">Credit Card Numbers</div>
+            <div class="rule-description">Credit card numbers with Luhn algorithm validation</div>
+          </div>
+          <input type="checkbox" id="rule-credit-card" checked>
+        </div>
+        
+        <div class="rule-item">
+          <div>
+            <div class="rule-name">API Keys & Secrets</div>
+            <div class="rule-description">API keys, tokens, passwords, and other secrets</div>
+          </div>
+          <input type="checkbox" id="rule-api-keys" checked>
+        </div>
+        
+        <div class="rule-item">
+          <div>
+            <div class="rule-name">Confidential Keywords</div>
+            <div class="rule-description">Documents marked as confidential, internal, restricted, etc.</div>
+          </div>
+          <input type="checkbox" id="rule-confidential" checked>
+        </div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>Custom Keywords</h2>
+      
+      <div class="form-group">
+        <label for="custom-keywords">Additional confidential keywords (one per line)</label>
+        <textarea id="custom-keywords" placeholder="Enter custom keywords that should be flagged as confidential..."></textarea>
+        <div class="help-text">Add your organization-specific confidential terms</div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>Blocked Websites</h2>
+      
+      <div class="form-group">
+        <label for="blocked-sites">AI/Chat websites to monitor (one per line)</label>
+        <textarea id="blocked-sites">chat.openai.com
+claude.ai
+bard.google.com
+gemini.google.com
+copilot.microsoft.com
+poe.com
+huggingface.co</textarea>
+        <div class="help-text">Extension will be more strict on these websites</div>
+      </div>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <button class="btn btn-primary" id="save-btn">Save Settings</button>
+        <button class="btn btn-secondary" id="reset-btn">Reset to Defaults</button>
+      </div>
+      <div>
+        <button class="btn btn-secondary" id="test-connection-btn">Test Server Connection</button>
+        <button class="btn btn-secondary" id="view-dashboard-btn">View Dashboard</button>
+      </div>
+    </div>
+    
+    <div id="status-message" class="status-message"></div>
+  </div>
+  
+  <script src="options.js"></script>
+</body>
+</html>

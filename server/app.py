@@ -3,7 +3,7 @@ import os
 import json
 import pymysql
 import jwt
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 from flask import (
     Flask,
@@ -182,7 +182,7 @@ def init_db():
 def create_jwt(device_id: str):
     payload = {
         "device_id": device_id,
-        "exp": datetime.datetime.now(datetime.UTC) + timedelta(hours=JWT_EXP_HOURS),
+        "exp": datetime.now(timezone.utc) + timedelta(hours=JWT_EXP_HOURS),
     }
     token = jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALGORITHM)
     if isinstance(token, bytes):
@@ -398,6 +398,9 @@ def dashboard():
 
 
 # ---------------- ADMIN PAGES ----------------
+@app.route("/api/health", methods=["GET"])
+def api_health():
+    return jsonify({"status": "ok", "timestamp": datetime.now().isoformat()})
 
 
 @app.route("/users")

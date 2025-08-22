@@ -1,10 +1,23 @@
 {
   "manifest_version": 3,
   "name": "AI DLP Browser Extension",
-  "version": "1.0",
-  "description": "Blocks sensitive data (PAN, credit cards, API keys) from being uploaded to AI/chat platforms.",
-  "permissions": ["storage", "scripting", "webRequest", "tabs"],
-  "host_permissions": ["<all_urls>"],
+  "version": "1.0.1",
+  "description": "Blocks sensitive data (PAN, Aadhaar, credit cards, API keys, confidential files) from being uploaded to AI/chat platforms.",
+  "icons": {
+    "16": "icon16.png",
+    "48": "icon48.png",
+    "128": "icon128.png"
+  },
+  "permissions": [
+    "storage",
+    "notifications",
+    "activeTab",
+    "tabs",
+    "scripting"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
   "background": {
     "service_worker": "background.js"
   },
@@ -12,15 +25,19 @@
     {
       "matches": ["<all_urls>"],
       "js": ["detectors.js", "content.js"],
-      "run_at": "document_end"
+      "run_at": "document_end",
+      "all_frames": true
     }
   ],
   "action": {
-    "default_popup": "",
-    "default_icon": {
-      "16": "icon16.png",
-      "48": "icon48.png",
-      "128": "icon128.png"
+    "default_title": "AI DLP Browser Extension",
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html",
+  "web_accessible_resources": [
+    {
+      "resources": ["icon48.png"],
+      "matches": ["<all_urls>"]
     }
-  }
+  ]
 }
