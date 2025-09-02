@@ -1,2 +1,19 @@
 pywin32
 requests
+# Existing dependencies (add these to your current requirements.txt)
+scikit-learn==1.3.0
+numpy==1.24.3
+pandas==2.0.3
+
+# Your existing dependencies should include:
+# flask
+# pymysql
+# pyjwt
+# python-dotenv
+# openai
+# openpyxl
+# python-docx
+# PyPDF2
+# pywin32
+# pynput
+# requests

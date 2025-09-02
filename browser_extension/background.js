@@ -1,7 +1,7 @@
 // Enhanced background service worker with server communication
 console.log("🚀 AI DLP Browser Extension background service worker starting");
 
-const SERVER_URL = "http://127.0.0.1:8000/api/report";
+const SERVER_URL = "http://10.160.14.76:8059/api/report";
 let JWT_TOKEN = null;
 
 // Initialize
@@ -20,7 +20,7 @@ async function fetchJWTToken() {
   try {
     console.log("🔄 Attempting to fetch JWT token from server...");
     
-    const response = await fetch("http://127.0.0.1:8000/api/token", {
+    const response = await fetch("http://10.160.14.76:8059/api/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -37,7 +37,7 @@ async function fetchJWTToken() {
     } else {
       const errorText = await response.text();
       console.error("❌ Failed to get JWT token:", response.status, errorText);
-      console.log("🔧 Check if your DLP server is running on http://127.0.0.1:8000");
+      console.log("🔧 Check if your DLP server is running on http://10.160.14.76:8059");
       
       // Use fallback token
       JWT_TOKEN = "browser_fallback_token";
@@ -46,7 +46,7 @@ async function fetchJWTToken() {
   } catch (error) {
     console.error("❌ Network error fetching JWT token:", error.message);
     console.log("🔧 Possible issues:");
-    console.log("   - DLP server not running on http://127.0.0.1:8000");
+    console.log("   - DLP server not running on http://10.160.14.76:8059");
     console.log("   - CORS configuration issue");
     console.log("   - Network connectivity problem");
     

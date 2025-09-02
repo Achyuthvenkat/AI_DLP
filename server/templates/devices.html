@@ -1,13 +1,22 @@
+<!-- devices.html -->
 {% extends "base.html" %}
 {% block content %}
 <h2>Devices</h2>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        {% for category, message in messages %}
+            <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: {% if category == 'error' %}#f8d7da; color: #721c24; border: 1px solid #f5c6cb{% else %}#d4edda; color: #155724; border: 1px solid #c3e6cb{% endif %};">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 
 <table border="1" cellpadding="8" cellspacing="0" width="100%" style="border-collapse: collapse;">
     <thead>
         <tr style="background-color: #f5f5f5;">
             <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">Device ID</th>
-            <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">Hostname</th>
-            <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">OS</th>
             <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">Owner</th>
             <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">Last Seen</th>
             <th style="text-align: left; padding: 12px; border: 1px solid #ddd;">Status</th>
@@ -17,20 +26,24 @@
     <tbody>
         {% for device in devices %}
         <tr style="border: 1px solid #ddd;">
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ device.id }}</td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ device.hostname }}</td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ device.os }}</td>
-            <td style="padding: 10px; border: 1px solid #ddd;">{{ device.owner }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ device.device_id }}</td>
+            <td style="padding: 10px; border: 1px solid #ddd;">{{ device.owner or 'Unassigned' }}</td>
             <td style="padding: 10px; border: 1px solid #ddd;">{{ device.last_seen }}</td>
             <td style="padding: 10px; border: 1px solid #ddd;">
-                <span style="padding: 4px 8px; border-radius: 4px; background-color: {% if device.status == 'Active' %}#d4edda; color: #155724{% else %}#f8d7da; color: #721c24{% endif %};">
-                    {{ device.status }}
+                <span style="padding: 4px 8px; border-radius: 4px; background-color: {% if device.status == 'active' %}#d4edda; color: #155724{% else %}#f8d7da; color: #721c24{% endif %};">
+                    {{ device.status.title() }}
                 </span>
             </td>
             <td style="padding: 10px; border: 1px solid #ddd; text-align: center;">
                 <a href="/devices/edit/{{ device.id }}" style="color: #007bff; text-decoration: none; margin-right: 8px;">Edit</a>
                 |
-                <a href="/devices/delete/{{ device.id }}" onclick="return confirm('Delete device?');" style="color: #dc3545; text-decoration: none; margin-left: 8px;">Delete</a>
+                <a href="/devices/delete/{{ device.id }}" onclick="return confirm('Are you sure you want to delete this device? This will also delete all associated events.');" style="color: #dc3545; text-decoration: none; margin-left: 8px;">Delete</a>
+            </td>
+        </tr>
+        {% else %}
+        <tr>
+            <td colspan="5" style="padding: 20px; text-align: center; color: #6c757d; border: 1px solid #ddd;">
+                No devices found.
             </td>
         </tr>
         {% endfor %}

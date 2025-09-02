@@ -9,7 +9,7 @@
 <!-- Filter Section -->
 <form method="GET" action="{{ url_for('events_page') }}" class="mb-4">
     <div class="row g-3">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="device_filter" class="form-label">Device:</label>
             <select name="device_filter" id="device_filter" class="form-select">
                 <option value="">All Devices</option>
@@ -18,7 +18,7 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="event_type_filter" class="form-label">Event Type:</label>
             <select name="event_type_filter" id="event_type_filter" class="form-select">
                 <option value="">All Types</option>
@@ -27,16 +27,25 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="ai_label_filter" class="form-label">AI Label:</label>
             <select name="ai_label_filter" id="ai_label_filter" class="form-select">
-                <option value="">All Labels</option>
+                <option value="">All AI Labels</option>
                 {% for label in ai_labels %}
                 <option value="{{ label }}" {% if current_ai_label_filter == label %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
+            <label for="sklearn_label_filter" class="form-label">Sklearn Label:</label>
+            <select name="sklearn_label_filter" id="sklearn_label_filter" class="form-select">
+                <option value="">All Sklearn Labels</option>
+                {% for label in sklearn_labels %}
+                <option value="{{ label }}" {% if current_sklearn_label_filter == label %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-4">
             <label for="user_filter" class="form-label">User Email:</label>
             <input type="text" name="user_filter" id="user_filter" class="form-control" 
                    placeholder="Search user email..." value="{{ current_user_filter }}">
@@ -51,12 +60,13 @@
 </form>
 
 <!-- Filter Status -->
-{% if current_device_filter or current_event_type_filter or current_ai_label_filter or current_user_filter %}
+{% if current_device_filter or current_event_type_filter or current_ai_label_filter or current_sklearn_label_filter or current_user_filter %}
 <div class="alert alert-info">
     <strong>Active Filters:</strong>
     {% if current_device_filter %}<span class="badge bg-secondary me-1">Device: {{ current_device_filter }}</span>{% endif %}
     {% if current_event_type_filter %}<span class="badge bg-success me-1">Type: {{ current_event_type_filter }}</span>{% endif %}
     {% if current_ai_label_filter %}<span class="badge bg-primary me-1">AI: {{ current_ai_label_filter }}</span>{% endif %}
+    {% if current_sklearn_label_filter %}<span class="badge bg-info me-1">Sklearn: {{ current_sklearn_label_filter }}</span>{% endif %}
     {% if current_user_filter %}<span class="badge bg-warning me-1">User: {{ current_user_filter }}</span>{% endif %}
     <a href="{{ url_for('events_page') }}" class="btn btn-sm btn-outline-secondary ms-2">Clear All</a>
 </div>
@@ -75,8 +85,9 @@
                 <th>Target</th>
                 <th>Snippet</th>
                 <th>Detector Hits</th>
-                <th>AI Label</th>
-                <th>AI Confidence</th>
+                <th>AI Classification</th>
+                <th>Sklearn Classification</th>
+                <th>Agreement</th>
                 <th>Policy</th>
             </tr>
         </thead>
@@ -91,12 +102,12 @@
                     <span class="badge bg-primary">{{ event.event_type }}</span>
                 </td>
                 <td>
-                    <div class="text-truncate" style="max-width: 150px;" title="{{ event.target }}">
+                    <div class="text-truncate" style="max-width: 120px;" title="{{ event.target }}">
                         {{ event.target }}
                     </div>
                 </td>
                 <td>
-                    <div class="text-truncate" style="max-width: 200px;" title="{{ event.snippet }}">
+                    <div class="text-truncate" style="max-width: 150px;" title="{{ event.snippet }}">
                         {{ event.snippet }}
                     </div>
                 </td>
@@ -117,25 +128,48 @@
                 </td>
                 <td>
                     {% if event.ai_label %}
-                        <span class="badge {% if event.ai_label == 'Confidential' %}bg-danger{% elif event.ai_label == 'Sensitive' %}bg-warning{% elif event.ai_label == 'Public' %}bg-success{% else %}bg-secondary{% endif %}">
+                        <span class="badge {% if event.ai_label == 'Confidential' %}bg-danger{% elif event.ai_label == 'Sensitive' %}bg-warning{% elif event.ai_label == 'Public' %}bg-success{% else %}bg-primary{% endif %}">
                             {{ event.ai_label }}
                         </span>
+                        {% if event.ai_confidence %}
+                            <br><small class="text-muted">{{ "%.1f"|format(event.ai_confidence * 100) }}%</small>
+                        {% endif %}
                     {% else %}
                         <span class="text-muted">N/A</span>
                     {% endif %}
                 </td>
                 <td>
-                    {% if event.ai_confidence %}
-                        {{ "%.1f"|format(event.ai_confidence * 100) }}%
+                    {% if event.sklearn_label %}
+                        <span class="badge {% if event.sklearn_label == 'Confidential' %}bg-danger{% elif event.sklearn_label == 'Sensitive' %}bg-warning{% elif event.sklearn_label == 'Public' %}bg-success{% else %}bg-primary{% endif %}">
+                            {{ event.sklearn_label }}
+                        </span>
+                        {% if event.sklearn_confidence %}
+                            <br><small class="text-muted">{{ "%.1f"|format(event.sklearn_confidence * 100) }}%</small>
+                        {% endif %}
                     {% else %}
                         <span class="text-muted">N/A</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if event.ai_label and event.sklearn_label %}
+                        {% if event.ai_label == event.sklearn_label %}
+                            <span class="badge bg-success" title="Models agree on classification">
+                                ✓
+                            </span>
+                        {% else %}
+                            <span class="badge bg-danger" title="Models disagree: AI={{ event.ai_label }}, Sklearn={{ event.sklearn_label }}">
+                                ✗
+                            </span>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted" title="One or both models didn't classify this event">-</span>
                     {% endif %}
                 </td>
                 <td>{{ event.policy_id or 'N/A' }}</td>
             </tr>
             {% else %}
             <tr>
-                <td colspan="11" class="text-center">No events found</td>
+                <td colspan="12" class="text-center">No events found</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -150,6 +184,7 @@
         {% if current_device_filter %}{% set _ = filter_params.append(('device_filter', current_device_filter)) %}{% endif %}
         {% if current_event_type_filter %}{% set _ = filter_params.append(('event_type_filter', current_event_type_filter)) %}{% endif %}
         {% if current_ai_label_filter %}{% set _ = filter_params.append(('ai_label_filter', current_ai_label_filter)) %}{% endif %}
+        {% if current_sklearn_label_filter %}{% set _ = filter_params.append(('sklearn_label_filter', current_sklearn_label_filter)) %}{% endif %}
         {% if current_user_filter %}{% set _ = filter_params.append(('user_filter', current_user_filter)) %}{% endif %}
         
         {% if has_prev %}
@@ -200,13 +235,13 @@
     <small class="text-muted">
         Showing page {{ current_page }} of {{ total_pages }} 
         ({{ events|length }} events on this page, {{ total_events }} total)
-        {% if current_device_filter or current_event_type_filter or current_ai_label_filter or current_user_filter %}
+        {% if current_device_filter or current_event_type_filter or current_ai_label_filter or current_sklearn_label_filter or current_user_filter %}
         - Filtered Results
         {% endif %}
     </small>
 </div>
 {% endif %}
-
+                
 <!-- Detector Hits Modal -->
 <div class="modal fade" id="detectorHitsModal" tabindex="-1" aria-labelledby="detectorHitsModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-xl">

@@ -1,4 +1,5 @@
-# -*- coding: utf-8 -*-
+# agent.py
+
 import os, re, time, logging, requests, threading, json
 from pathlib import Path
 import win32clipboard
@@ -8,57 +9,23 @@ from PyPDF2 import PdfReader
 from dotenv import load_dotenv
 from openai import OpenAI
 from pynput import keyboard
+import pickle
+import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+import random
+from config import CONFIG, EXCLUDE_DIRS, OUTPUT_SCHEMA
 
 # ---------------- ENV & CONFIG ----------------
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-SERVER_URL = os.getenv("SERVER_URL", "http://127.0.0.1:8000")
+SERVER_URL = os.getenv("SERVER_URL")
 client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 DEBUG_CONSOLE = True
-
-# Exclude system/program folders
-EXCLUDE_DIRS = [
-    r"C:\Windows",
-    r"C:\Program Files",
-    r"C:\Program Files (x86)",
-    r"C:\ProgramData",
-    r"C:\$Recycle.Bin",
-    r"C:\Recovery",
-    r"C:\System Volume Information",
-]
-
-CONFIG = {
-    "scan_dirs": [],  # populated with all drives
-    "file_extensions": [
-        ".txt",
-        ".csv",
-        ".xlsx",
-        ".xls",
-        ".docx",
-        ".pdf",
-        ".py",
-        ".js",
-        ".java",
-        ".go",
-        ".ts",
-    ],
-    "server_url": f"{SERVER_URL}/api/report",
-    "sync_url": f"{SERVER_URL}/api/sync_files",
-    "ai_classification": {"enabled": True, "model": "gpt-4o-mini"},  # lighter default
-    "patterns": {
-        "email": r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-z]{2,}",
-        "credit_card": r"\b(?:\d[ -]*?){13,16}\b",
-        "pan": r"[A-Z]{5}[0-9]{4}[A-Z]",
-        "aadhaar": r"\b\d{4}\s\d{4}\s\d{4}\b",
-        "financial": r"(revenue|profit|balance sheet|invoice|bank account)",
-        "design_doc": r"(blueprint|design spec|architecture|CAD|drawing)",
-        "api_key": r"(?:api|secret|token|key)[-_]?[\w]{16,50}",
-        "password": r"(?i)password\s*[:=]\s*['\"]?.+['\"]?",
-        "aws_secret": r"AKIA[0-9A-Z]{16}",
-        "private_key": r"-----BEGIN (?:RSA|EC|DSA)? PRIVATE KEY-----",
-    },
-}
 
 # Add all drives except excluded
 for drive_letter in range(65, 91):
@@ -79,18 +46,265 @@ logging.basicConfig(
 stats = {"files_scanned": 0, "hits_detected": 0, "reports_sent": 0}
 
 # ---------------- FILE TRACKING ----------------
-existing_files_in_db = set()  # Files that exist in the database
-scanned_files = {}  # Cache of files we've already scanned this session
+existing_files_in_db = set()
+scanned_files = {}
 findings_summary = []
 findings_lock = threading.Lock()
 
+# ---------------- ML MODEL ----------------
+sklearn_model = None
+tfidf_vectorizer = None
+
+
+def verhoeff_check(num_string):
+    """Verhoeff algorithm check for Aadhaar numbers"""
+
+    def d(j, k):
+        multiplication_table = [
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            [1, 2, 3, 4, 0, 6, 7, 8, 9, 5],
+            [2, 3, 4, 0, 1, 7, 8, 9, 5, 6],
+            [3, 4, 0, 1, 2, 8, 9, 5, 6, 7],
+            [4, 0, 1, 2, 3, 9, 5, 6, 7, 8],
+            [5, 9, 8, 7, 6, 0, 4, 3, 2, 1],
+            [6, 5, 9, 8, 7, 1, 0, 4, 3, 2],
+            [7, 6, 5, 9, 8, 2, 1, 0, 4, 3],
+            [8, 7, 6, 5, 9, 3, 2, 1, 0, 4],
+            [9, 8, 7, 6, 5, 4, 3, 2, 1, 0],
+        ]
+        return multiplication_table[j][k]
+
+    def p(i, ni):
+        permutation_table = [
+            [0, 1, 2, 3, 4, 5, 6, 7, 8, 9],
+            [1, 5, 7, 6, 2, 8, 3, 0, 9, 4],
+            [5, 8, 0, 3, 7, 9, 6, 1, 4, 2],
+            [8, 9, 1, 6, 0, 4, 3, 5, 2, 7],
+            [9, 4, 5, 3, 1, 2, 6, 8, 7, 0],
+            [4, 2, 8, 6, 5, 7, 3, 9, 0, 1],
+            [2, 7, 9, 3, 8, 0, 6, 4, 1, 5],
+            [7, 0, 4, 6, 9, 1, 3, 2, 5, 8],
+        ]
+        return permutation_table[i % 8][ni]
+
+    try:
+        c = 0
+        for i, n in enumerate(reversed([int(x) for x in num_string])):
+            c = d(c, p(i, n))
+        return c == 0
+    except:
+        return False
+
+
+def luhn_check(card_number):
+    """Luhn algorithm check for credit card numbers"""
+    try:
+        digits = [int(x) for x in str(card_number).replace(" ", "").replace("-", "")]
+        for i in range(len(digits) - 2, -1, -2):
+            digits[i] *= 2
+            if digits[i] > 9:
+                digits[i] -= 9
+        return sum(digits) % 10 == 0
+    except:
+        return False
+
+
+# For Scikit learn model training
+def create_training_data():
+    """Create synthetic training data for scikit-learn model"""
+    training_data = []
+
+    # Confidential examples
+    confidential_samples = [
+        (
+            "OpenAI API key: sk-abc123xyz456def789ghi012jkl345mno678pqr901stu234",
+            "Confidential",
+        ),
+        ("Gemini API key: AIzaSyDaGmWKa4JsXZ-HjGw7ISLn_3namBGewQe", "Confidential"),
+        ("DeepSeek API: ds-abc123xyz456def789", "Confidential"),
+        ("Database password: db_pass=SecretP@ssw0rd123", "Confidential"),
+        ("Titan Company Limited R&D blueprint for Orion project", "Confidential"),
+        ("Confidential Titan financial report Q3-2024", "Confidential"),
+        ("-----BEGIN RSA PRIVATE KEY-----", "Confidential"),
+        ("JWT TOKEN: wefwrf", "Confidential"),
+        ('password="MySecretPassword123"', "Confidential"),
+    ]
+
+    # Sensitive examples
+    sensitive_samples = [
+        ("PAN number: FURPA3446B", "Sensitive"),
+        ("Aadhaar: 123456789012", "Sensitive"),
+        ("Credit card: 4532-1234-5678-9012", "Sensitive"),
+        ("HR document: Employee salary slip for March 2024", "Sensitive"),
+        ("Medical report shows patient diagnosis of diabetes", "Sensitive"),
+        ("Employee payroll information confidential", "Sensitive"),
+    ]
+
+    # Internal examples
+    internal_samples = [
+        ("Meeting notes from quarterly review", "Internal"),
+        ("Internal email regarding project timeline", "Internal"),
+        ("Team budget allocation for Q4", "Internal"),
+        ("Project kickoff scheduled for next month", "Internal"),
+        ("For internal use only - process documentation", "Internal"),
+        ("Minutes of meeting - action items discussed", "Internal"),
+        ("Quarterly budget planning session", "Internal"),
+    ]
+
+    # Public examples
+    public_samples = [
+        (
+            "Titan Company Limited announces launch of jewellery collection on March 15",
+            "Public",
+        ),
+        ("This brochure describes features of Titan's smart wearables.", "Public"),
+        ("Press release: Titan Q2 sales grew by 12%.", "Public"),
+        ("Marketing flyer for Titan Watches – Flat 20% discount.", "Public"),
+        ("Titan website content: Careers page updated", "Public"),
+        ("Welcome to our official website", "Public"),
+        ("Product catalog available for download", "Public"),
+        ("Company news and announcements", "Public"),
+    ]
+
+    all_samples = (
+        confidential_samples + sensitive_samples + internal_samples + public_samples
+    )
+
+    # Add some variations
+    for text, label in all_samples:
+        training_data.append((text, label))
+        # Add variations with different formatting
+        training_data.append((text.upper(), label))
+        training_data.append((text.lower(), label))
+
+    return training_data
+
+
+def train_sklearn_model():
+    """Train and save the scikit-learn model"""
+    global sklearn_model, tfidf_vectorizer
+
+    try:
+        # Create training data
+        training_data = create_training_data()
+        texts, labels = zip(*training_data)
+
+        # Split the data
+        X_train, X_test, y_train, y_test = train_test_split(
+            texts, labels, test_size=0.2, random_state=42, stratify=labels
+        )
+
+        # Create pipeline
+        sklearn_model = Pipeline(
+            [
+                (
+                    "tfidf",
+                    TfidfVectorizer(
+                        max_features=1000, stop_words="english", ngram_range=(1, 2)
+                    ),
+                ),
+                ("classifier", LogisticRegression(random_state=42, multi_class="ovr")),
+            ]
+        )
+
+        # Train the model
+        sklearn_model.fit(X_train, y_train)
+
+        # Test the model
+        y_pred = sklearn_model.predict(X_test)
+        debug_print(f"[SKLEARN MODEL] Training completed")
+        debug_print(
+            f"[SKLEARN MODEL] Test accuracy: {sklearn_model.score(X_test, y_test):.3f}"
+        )
+
+        # Save the model
+        with open(CONFIG["sklearn_classification"]["model_path"], "wb") as f:
+            pickle.dump(sklearn_model, f)
+
+        debug_print(
+            f"[SKLEARN MODEL] Model saved to {CONFIG['sklearn_classification']['model_path']}"
+        )
+
+    except Exception as e:
+        debug_print(f"[SKLEARN MODEL ERROR] {e}")
+        logging.error(f"Sklearn model training failed: {e}")
+
+
+def load_sklearn_model():
+    """Load the scikit-learn model"""
+    global sklearn_model
+
+    model_path = CONFIG["sklearn_classification"]["model_path"]
+
+    if os.path.exists(model_path):
+        try:
+            with open(model_path, "rb") as f:
+                sklearn_model = pickle.load(f)
+            debug_print(f"[SKLEARN MODEL] Loaded from {model_path}")
+        except Exception as e:
+            debug_print(f"[SKLEARN MODEL LOAD ERROR] {e}")
+            train_sklearn_model()
+    else:
+        debug_print(f"[SKLEARN MODEL] Model not found, training new model...")
+        train_sklearn_model()
+
+
+def sklearn_classify(text: str):
+    """Classify text using scikit-learn model"""
+    if not CONFIG["sklearn_classification"]["enabled"] or not sklearn_model:
+        return {"label": "N/A", "confidence": 0.0}
+
+    try:
+        # Get prediction and probability
+        prediction = sklearn_model.predict([text])[0]
+        probabilities = sklearn_model.predict_proba([text])[0]
+
+        # Get the confidence (highest probability)
+        confidence = float(max(probabilities))
+
+        result = {"label": prediction, "confidence": round(confidence, 3)}
+        debug_print(f"[SKLEARN CLASSIFICATION] {result}")
+
+        return result
+
+    except Exception as e:
+        debug_print(f"[SKLEARN CLASSIFICATION ERROR] {e}")
+        return {"label": "Internal", "confidence": 0.4}
+
 
 # ---------------- UTILS ----------------
-def should_exclude(path: str):
-    path_l = path.lower()
-    for ex in EXCLUDE_DIRS:
-        if path_l.startswith(ex.lower()):
+# Pre-compile regex patterns once
+EXCLUDE_PATTERNS = []
+for excl in EXCLUDE_DIRS:
+    try:
+        # Convert wildcard-style patterns to regex
+        pattern = re.compile(
+            excl.replace("\\", "\\\\").replace(".", r"\.").replace("*", ".*"),
+            re.IGNORECASE,
+        )
+        EXCLUDE_PATTERNS.append(pattern)
+    except:
+        continue
+
+
+def should_exclude(path: str) -> bool:
+    """
+    Return True if the path matches any exclusion rule.
+    Supports absolute paths, folder names, and regex patterns.
+    """
+    path_obj = Path(path).resolve()
+    path_str = str(path_obj).replace("/", "\\")
+    path_lower = path_str.lower()
+
+    for pattern in EXCLUDE_PATTERNS:
+        if pattern.search(path_lower):
             return True
+
+    # Folder name check
+    for part in path_obj.parts:
+        if part.lower() in [ex.lower() for ex in EXCLUDE_DIRS]:
+            return True
+
     return False
 
 
@@ -121,7 +335,6 @@ def fetch_jwt_token():
             token = response_data.get("token")
             existing_files = response_data.get("existing_files", [])
 
-            # Store existing files from database
             global existing_files_in_db
             existing_files_in_db = set(existing_files)
 
@@ -141,7 +354,6 @@ def sync_file_states():
     """Sync current file state with server"""
     device_id = os.environ.get("COMPUTERNAME", "local_device")
 
-    # Get all current files on device
     current_files = []
     for base_dir in CONFIG["scan_dirs"]:
         if should_exclude(base_dir):
@@ -157,7 +369,6 @@ def sync_file_states():
         except Exception as e:
             logging.error(f"Error scanning {base_dir}: {e}")
 
-    # Send to server for sync
     try:
         headers = {"Authorization": f"Bearer {JWT_TOKEN}"}
         resp = requests.post(
@@ -175,148 +386,182 @@ def sync_file_states():
             return result["new_files_to_scan"]
         else:
             debug_print(f"[FILE SYNC FAILED] {resp.status_code}: {resp.text}")
-            return current_files  # Fallback to scan all files
+            return current_files
 
     except Exception as e:
         debug_print(f"[FILE SYNC ERROR] {e}")
-        return current_files  # Fallback to scan all files
+        return current_files
 
 
 JWT_TOKEN = fetch_jwt_token() or "secrettoken"
 
 
-# ---------------- DETECTION ----------------
-def detect_sensitive(text: str):
+# ---------------- ENHANCED DETECTION ----------------
+def detect_sensitive(text: str, strict_validation=False):
     hits = {}
     if not text:
         return hits
+
     for name, pattern in PATTERNS.items():
         found = pattern.findall(text)
         if found:
-            hits[name] = found
+            if strict_validation:
+                # Additional validation for specific patterns
+                if name == "aadhaar_strict":
+                    # Validate with Verhoeff algorithm
+                    valid_aadhaar = [
+                        num for num in found if len(num) == 12 and verhoeff_check(num)
+                    ]
+                    if valid_aadhaar:
+                        hits[name] = valid_aadhaar
+                elif name == "credit_card_strict":
+                    # Validate with Luhn algorithm
+                    valid_cards = []
+                    for card in found:
+                        clean_card = re.sub(r"[- ]", "", card)
+                        if 15 <= len(clean_card) <= 19 and luhn_check(clean_card):
+                            valid_cards.append(card)
+                    if valid_cards:
+                        hits[name] = valid_cards
+                elif name == "pan_strict":
+                    # Validate PAN format strictly
+                    valid_pans = [
+                        pan for pan in found if len(pan) == 10 and pan.isalnum()
+                    ]
+                    if valid_pans:
+                        hits[name] = valid_pans
+            else:
+                hits[name] = found
+
     return hits
 
 
 # ---------------- AI CLASSIFICATION ----------------
-
-
 def ai_classify(text: str):
     if not CONFIG["ai_classification"]["enabled"] or not client:
         return {"label": "N/A", "confidence": 0.0}
 
     try:
-        response = client.chat.completions.create(
+        response = client.responses.create(
+            instructions="Give a valid reason in output for the classification.",
             model=CONFIG["ai_classification"]["model"],
-            messages=[
+            input=[
                 {
-                    "role": "user",
+                    "role": "developer",
                     "content": (
                         "You are a Data Loss Prevention (DLP) classifier. Analyze the following text and classify it into one of these security categories.\n\n"
                         "CATEGORIES & CONFIDENCE RANGES:\n"
-                        "• Public (0.0-0.25): Marketing content, public documentation, general information\n"
-                        "• Internal (0.25-0.50): Company memos, internal procedures, non-sensitive business data\n"
-                        "• Sensitive (0.50-0.75): Customer data, financial reports, employee information, project details\n"
-                        "• Confidential (0.75-1.0): Trade secrets, legal documents, executive communications, security credentials\n\n"
-                        "DETECTION INDICATORS:\n"
-                        "High Confidence (0.8-1.0):\n"
-                        "- API keys, passwords, tokens, private keys\n"
-                        "- Social Security Numbers, credit card numbers, bank accounts\n"
-                        "- Legal contracts, NDAs, patent applications\n"
-                        "- Executive strategy documents, M&A information\n"
-                        "- Source code with proprietary algorithms\n\n"
-                        "Medium-High Confidence (0.6-0.8):\n"
-                        "- Employee personal data (addresses, phone numbers)\n"
-                        "- Financial statements, revenue reports\n"
-                        "- Customer databases, user information\n"
-                        "- Internal project specifications\n"
-                        "- Technical architecture documents\n\n"
-                        "Medium Confidence (0.4-0.6):\n"
-                        "- Internal meeting notes with business discussions\n"
-                        "- Company policies and procedures\n"
-                        "- Internal communications about projects\n"
-                        "- Operational reports and metrics\n\n"
-                        "Low Confidence (0.0-0.4):\n"
-                        "- Public marketing materials\n"
-                        "- General documentation and tutorials\n"
-                        "- Public announcements and press releases\n"
-                        "- Generic code snippets and examples\n\n"
+                        "If you recieve a filepath or file name instead of content it means it has no sensitive content, so classify it accordingly.\n\n"
+                        "• Public (0.0-0.25): Marketing content, press releases, website information, product brochures\n"
+                        "• Internal (0.25-0.50): Meeting notes, internal emails, project timelines, internal documentation, budget allocations\n"
+                        "• Sensitive (0.50-0.75): Personally Identifiable Information (PII) such as PAN, Aadhaar, credit card numbers, medical reports, salary slips, employee payroll information\n"
+                        "• Confidential (0.75-1.0): API keys, passwords, tokens, private keys, database credentials, trade secrets, legal documents, Titan R&D blueprints, financial reports, source code, security credentials\n\n"
+                        "EXAMPLES:\n"
+                        "Confidential:\n"
+                        "- OpenAI API key: sk-abc123...\n"
+                        "- Gemini API key: AIzaSy...\n"
+                        "- DeepSeek API: ds-abc123...\n"
+                        "- Database password: db_pass=SecretP@ssw0rd123\n"
+                        "- -----BEGIN RSA PRIVATE KEY-----\n"
+                        "- Titan Company Limited R&D blueprint for Orion project\n"
+                        "- Confidential Titan financial report Q3-2024\n"
+                        '- password="MySecretPassword123"\n\n'
+                        "Sensitive:\n"
+                        "- PAN number: FURPA3446B \n"
+                        "- PAN regex: [A-Za-z]{5}[0-9]{4}[A-Za-z]{1}\n"
+                        "- Aadhaar: 123456789012\n"
+                        "- Aadhaar regex: \d{4}[\s-]?\d{4}[\s-]?\d{4}\n"
+                        "- Credit card: 4532-1234-5678-9012\n"
+                        "- Employee salary slip for March 2024\n"
+                        "- Medical report showing diagnosis\n"
+                        "- Employee payroll information\n\n"
+                        "Internal:\n"
+                        "- Meeting notes from quarterly review\n"
+                        "- Internal email regarding project timeline\n"
+                        "- Team budget allocation for Q4\n"
+                        "- Project kickoff schedule\n"
+                        "- Process documentation (internal use only)\n"
+                        "- Minutes of meeting - action items\n\n"
+                        "Public:\n"
+                        "- Titan Company Limited announces jewellery collection launch\n"
+                        "- Brochure describing Titan smart wearables\n"
+                        "- Press release: Titan Q2 sales grew by 12%\n"
+                        "- Marketing flyer for Titan Watches – 20% discount\n"
+                        "- Titan website content (e.g., careers page)\n"
+                        "- Official website welcome text\n"
+                        "- Public product catalog\n\n"
+                        """ ### Indicators:
+                        Confidential → API keys, passwords, tokens, private keys, secret config  
+                        Sensitive → Aadhaar number, PAN number, SSN, credit card numbers, medical data  
+                        Internal → Business documents, financial reports, HR info, project data not public  
+                        Public → Marketing material, press releases, general info, public website text  
+
+                        ### Examples:
+                        Example: "OpenAI API key: sk-abc123xyz456" → Confidential  
+                        Example: "Password=Titan@123" → Confidential  
+                        Example: "PAN number: ABCDE1234F" → Sensitive  
+                        Example: "Aadhaar: 1234 5678 9012" → Sensitive  
+                        Example: "Quarterly Financial Report 2023" → Internal  
+                        Example: "Titan launches new smartwatch" → Public  
+                        Example: "Our internal project code name is Project-X" → Internal  
+                        Example: "Contact us at support@titan.com" → Public  
+
+                        Now classify the following text:"""
                         "RESPONSE FORMAT:\n"
                         "Respond with ONLY valid JSON in this exact format:\n"
-                        '{"label": "Confidential", "confidence": 0.92}\n\n'
-                        "IMPORTANT RULES:\n"
-                        "1. Confidence must be a decimal between 0.0 and 1.0\n"
-                        "2. Label must be exactly one of: Public, Internal, Sensitive, Confidential\n"
-                        "3. Higher confidence = higher sensitivity/risk\n"
-                        "4. Consider context, not just individual data points\n"
-                        "5. When in doubt, err on the side of higher sensitivity\n\n"
-                        f"TEXT TO CLASSIFY:\n{text[:1000]}"
+                        '{"label": "Confidential", "confidence": 0.92}\n'
                     ),
-                }
+                },
+                {
+                    "role": "user",
+                    "content": text,
+                },
             ],
-            temperature=0.1,  # Low temperature for consistency
-            max_tokens=50,  # Reduced since we only need JSON response
+            text={"format": OUTPUT_SCHEMA},
+            temperature=0.3,
         )
+        print(response)
 
-        raw_content = (response.choices[0].message.content or "").strip()
-        debug_print(f"[AI RAW RESPONSE] {raw_content}")
-
-        # Clean JSON response
-        if raw_content.startswith("```json"):
-            raw_content = raw_content[7:-3].strip()
-        elif raw_content.startswith("```"):
-            raw_content = raw_content[3:-3].strip()
-
-        # Remove any extra text after JSON
-        if "}" in raw_content:
-            raw_content = raw_content[: raw_content.find("}") + 1]
-
-        import json
-
+        raw_content = (response.output_text or "").strip()
+        print(f"[AI RAW RESPONSE] {raw_content}")
         parsed = json.loads(raw_content)
 
         label = parsed.get("label", "Unknown")
         confidence = parsed.get("confidence", 0.0)
 
-        # Validate confidence range
         try:
             confidence = float(confidence)
-            if confidence < 0.0:
-                confidence = 0.0
-            elif confidence > 1.0:
-                confidence = 1.0
-            # Round to 3 decimal places
-            confidence = round(confidence, 3)
+            confidence = max(0.0, min(1.0, round(confidence, 3)))
         except (ValueError, TypeError):
-            debug_print(f"[AI CONFIDENCE ERROR] Invalid confidence: {confidence}")
             confidence = 0.0
 
-        # Validate label
-        valid_labels = ["Public", "Internal", "Sensitive", "Confidential"]
+        valid_labels = ["Public", "Internal", "Sensitive", "Confidential", "safe"]
         if label not in valid_labels:
             debug_print(
                 f"[AI LABEL ERROR] Invalid label '{label}', defaulting to 'Internal'"
             )
-            label = "Internal"
-            confidence = 0.4
+            label = "safe"
+            confidence = 0.0
 
         result = {"label": label, "confidence": confidence}
         debug_print(f"[AI CLASSIFICATION SUCCESS] {result}")
-
         return result
 
     except json.JSONDecodeError as e:
-        debug_print(f"[AI JSON PARSE ERROR] {e} | Raw response: {raw_content}")
+        debug_print(f"[AI JSON PARSE ERROR] {e}")
         return {"label": "Internal", "confidence": 0.4}
-
     except Exception as e:
-        debug_print(f"[AI CLASSIFICATION ERROR] {e}")
-        logging.error(f"AI classification failed: {e}")
+        print(f"[AI CLASSIFICATION ERROR] {e}")
+
         return {"label": "Internal", "confidence": 0.4}
 
 
 # ---------------- SUMMARY BUFFER ----------------
 def add_to_summary(event_type, target, snippet, hits):
+    # Get both AI and sklearn classifications
     ai_result = ai_classify(snippet)
+    sklearn_result = sklearn_classify(snippet)
+
     with findings_lock:
         findings_summary.append(
             {
@@ -327,6 +572,7 @@ def add_to_summary(event_type, target, snippet, hits):
                 "snippet": (snippet or "")[:200],
                 "detector_hits": hits,
                 "ai_classification": ai_result,
+                "sklearn_classification": sklearn_result,
             }
         )
     stats["hits_detected"] += len(hits)
@@ -334,7 +580,7 @@ def add_to_summary(event_type, target, snippet, hits):
 
 def send_summary_to_server():
     while True:
-        time.sleep(60)  # every 1 minutes
+        time.sleep(60)
         to_send = None
         with findings_lock:
             if findings_summary:
@@ -356,7 +602,6 @@ def send_summary_to_server():
                     debug_print(
                         f"[SUMMARY FAILED] {response.status_code}: {response.text}"
                     )
-                    # Put them back to buffer if failed
                     with findings_lock:
                         findings_summary[:0] = to_send
             except Exception as e:
@@ -367,36 +612,61 @@ def send_summary_to_server():
 
 # ---------------- FILE SCANNING ----------------
 def scan_file(filepath: Path, force_scan=False):
-    """Scan a file and return hits"""
     file_str = str(filepath)
     file_hash = get_file_hash(filepath)
 
-    # Skip if we've already scanned this file recently (unless forced)
     if not force_scan and file_str in scanned_files:
         if scanned_files[file_str] == file_hash:
-            return  # File hasn't changed, skip
+            return
+
+    debug_print(f"[SCANNING] {filepath}")
 
     hits = {}
+    sensitive_context = []  # Store context around sensitive data
     ext = filepath.suffix.lower()
+
     try:
         if ext in [".txt", ".csv", ".py", ".js", ".java", ".go", ".ts"]:
             with open(filepath, "r", errors="ignore") as f:
-                for idx, line in enumerate(f, start=1):
-                    line_hits = detect_sensitive(line)
-                    if line_hits:
-                        for k, v in line_hits.items():
-                            hits.setdefault(k, []).append(
-                                {"line": idx, "snippet": line[:200], "matches": v}
-                            )
-        elif ext == ".docx":
-            doc = Document(filepath)
-            for idx, p in enumerate(doc.paragraphs, start=1):
-                line_hits = detect_sensitive(p.text)
+                lines = f.readlines()
+
+            for idx, line in enumerate(lines, start=1):
+                line_hits = detect_sensitive(line)
                 if line_hits:
+                    # Get context: current line + surrounding lines
+                    context_lines = []
+                    for i in range(max(0, idx - 2), min(len(lines), idx + 1)):
+                        context_lines.append(f"L{i+1}: {lines[i].strip()}")
+
+                    context = "\n".join(context_lines)
+                    sensitive_context.append(context[:300])
+
                     for k, v in line_hits.items():
                         hits.setdefault(k, []).append(
-                            {"line": idx, "snippet": p.text[:200], "matches": v}
+                            {"line": idx, "snippet": line[:200], "matches": v}
                         )
+
+        elif ext == ".docx":
+            doc = Document(filepath)
+            paragraphs = [p.text for p in doc.paragraphs]
+
+            for idx, p_text in enumerate(paragraphs, start=1):
+                line_hits = detect_sensitive(p_text)
+                if line_hits:
+                    # Get context: current paragraph + surrounding
+                    context_paras = []
+                    for i in range(max(0, idx - 2), min(len(paragraphs), idx + 1)):
+                        if paragraphs[i].strip():  # Skip empty paragraphs
+                            context_paras.append(f"P{i+1}: {paragraphs[i].strip()}")
+
+                    context = "\n".join(context_paras)
+                    sensitive_context.append(context[:300])
+
+                    for k, v in line_hits.items():
+                        hits.setdefault(k, []).append(
+                            {"line": idx, "snippet": p_text[:200], "matches": v}
+                        )
+
         elif ext in [".xlsx", ".xls"]:
             wb = load_workbook(filepath, data_only=True)
             for sheet in wb:
@@ -407,6 +677,28 @@ def scan_file(filepath: Path, force_scan=False):
                         if cell:
                             cell_hits = detect_sensitive(str(cell))
                             if cell_hits:
+                                # Get cell context (nearby cells)
+                                context_cells = []
+                                for r in range(
+                                    max(1, row_idx - 1),
+                                    min(sheet.max_row + 1, row_idx + 2),
+                                ):
+                                    for c in range(
+                                        max(1, col_idx - 1),
+                                        min(sheet.max_column + 1, col_idx + 2),
+                                    ):
+                                        try:
+                                            cell_val = sheet.cell(row=r, column=c).value
+                                            if cell_val:
+                                                context_cells.append(
+                                                    f"R{r}C{c}: {str(cell_val)[:50]}"
+                                                )
+                                        except:
+                                            pass
+
+                                context = " | ".join(context_cells[:5])  # Limit context
+                                sensitive_context.append(context[:300])
+
                                 for k, v in cell_hits.items():
                                     hits.setdefault(k, []).append(
                                         {
@@ -415,13 +707,26 @@ def scan_file(filepath: Path, force_scan=False):
                                             "matches": v,
                                         }
                                     )
+
         elif ext == ".pdf":
             reader = PdfReader(filepath)
             for page_idx, page in enumerate(reader.pages, start=1):
                 text = page.extract_text() or ""
-                for line_idx, line in enumerate(text.splitlines(), start=1):
+                lines = text.splitlines()
+
+                for line_idx, line in enumerate(lines, start=1):
                     line_hits = detect_sensitive(line)
                     if line_hits:
+                        # Get context: surrounding lines on the page
+                        context_lines = []
+                        for i in range(
+                            max(0, line_idx - 2), min(len(lines), line_idx + 1)
+                        ):
+                            context_lines.append(f"L{i+1}: {lines[i].strip()}")
+
+                        context = f"Page {page_idx}: " + "\n".join(context_lines)
+                        sensitive_context.append(context[:300])
+
                         for k, v in line_hits.items():
                             hits.setdefault(k, []).append(
                                 {
@@ -430,45 +735,69 @@ def scan_file(filepath: Path, force_scan=False):
                                     "matches": v,
                                 }
                             )
+
     except Exception as e:
         logging.error(f"Failed to scan {filepath}: {e}")
         return
 
-    # Update our cache
     scanned_files[file_str] = file_hash
     stats["files_scanned"] += 1
 
-    # Only add to summary if there are hits OR if this is a new file
+    # Prepare enriched snippet for summary
+    if sensitive_context:
+        # Join contexts with clear separators
+        combined_snippet = "\n--- CONTEXT ---\n".join(sensitive_context)
+        if len(combined_snippet) > 800:  # Limit total length
+            combined_snippet = combined_snippet[:797] + "..."
+
+        # Add file metadata
+        file_info = f"FILE: {filepath.name} ({ext.upper()}) | "
+        combined_snippet = file_info + combined_snippet
+    else:
+        with open("errors.txt", "a", encoding="utf-8") as error_file:
+            error_file.write(f"No sensitive content in {filepath}\n")
+        combined_snippet = (
+            f"FILE: {filepath.name} | No sensitive content context available"
+        )
+
     if hits or file_str not in existing_files_in_db:
         if hits:
             debug_print(f"[FILE DETECTED] {filepath}")
-        add_to_summary("file_scan", filepath, str(filepath), hits)
+            debug_print(f"[ENRICHED SNIPPET] {combined_snippet[:150]}...")
+
+        # Pass the enriched snippet with context
+        add_to_summary("file_scan", filepath, combined_snippet, hits)
 
 
 def get_current_files():
-    """Get list of all current files on the device"""
+    """
+    Return all files to scan, skipping excluded directories.
+    """
     current_files = []
+
     for base_dir in CONFIG["scan_dirs"]:
-        if should_exclude(base_dir):
+        base_path = Path(base_dir)
+        if should_exclude(base_path):
             continue
+
         try:
-            for file in Path(base_dir).rglob("*"):
-                if (
-                    file.is_file()
-                    and file.suffix.lower() in CONFIG["file_extensions"]
-                    and not should_exclude(str(file))
-                ):
-                    current_files.append(str(file))
+            for root, dirs, files in os.walk(base_path):
+                # Remove excluded dirs so os.walk doesn't descend into them
+                dirs[:] = [d for d in dirs if not should_exclude(Path(root) / d)]
+
+                for f in files:
+                    file_path = Path(root) / f
+                    if file_path.suffix.lower() in CONFIG["file_extensions"]:
+                        if not should_exclude(file_path):
+                            current_files.append(str(file_path))
         except Exception as e:
-            logging.error(f"Error getting files from {base_dir}: {e}")
+            logging.error(f"Error scanning {base_dir}: {e}")
+
     return current_files
 
 
 def incremental_file_scan():
-    """Perform incremental file scanning"""
     debug_print("[INCREMENTAL SCAN] Starting file sync...")
-
-    # Get files that need to be scanned (new files only)
     files_to_scan = sync_file_states()
 
     if not files_to_scan:
@@ -477,11 +806,10 @@ def incremental_file_scan():
 
     debug_print(f"[INCREMENTAL SCAN] Scanning {len(files_to_scan)} new files...")
 
-    # Scan only new files
     for file_path in files_to_scan:
         try:
             filepath = Path(file_path)
-            if filepath.exists():
+            if filepath.exists() and not should_exclude(filepath):
                 scan_file(filepath, force_scan=True)
         except Exception as e:
             logging.error(f"Error scanning {file_path}: {e}")
@@ -489,50 +817,10 @@ def incremental_file_scan():
     debug_print(f"[INCREMENTAL SCAN] Completed scanning {len(files_to_scan)} files")
 
 
-def sync_file_states():
-    """Sync file states with server and get list of new files to scan"""
-    device_id = os.environ.get("COMPUTERNAME", "local_device")
-    current_files = get_current_files()
-
-    try:
-        headers = {"Authorization": f"Bearer {JWT_TOKEN}"}
-        resp = requests.post(
-            CONFIG["sync_url"],
-            json={"device_id": device_id, "current_files": current_files},
-            headers=headers,
-            timeout=10,
-        )
-
-        if resp.status_code == 200:
-            result = resp.json()
-            deleted_count = result["deleted_files_count"]
-            new_files = result["new_files_to_scan"]
-
-            debug_print(f"[FILE SYNC] Deleted: {deleted_count}, New: {len(new_files)}")
-
-            # Update our tracking
-            global existing_files_in_db
-            existing_files_in_db.update(new_files)
-            for deleted_file in result.get("deleted_files", []):
-                existing_files_in_db.discard(deleted_file)
-
-            return new_files
-        else:
-            debug_print(f"[FILE SYNC FAILED] {resp.status_code}: {resp.text}")
-            return []
-
-    except Exception as e:
-        debug_print(f"[FILE SYNC ERROR] {e}")
-        return []
-
-
 def scan_dirs():
-    """Main scanning loop - now does incremental scanning"""
-    # Initial sync and scan
     incremental_file_scan()
-
     while True:
-        time.sleep(1800)  # Check every 30 minutes (reduced frequency)
+        time.sleep(1800)
         try:
             incremental_file_scan()
         except Exception as e:
@@ -589,7 +877,11 @@ def start_keylogger():
 
 # ---------------- MAIN ----------------
 if __name__ == "__main__":
-    debug_print("🚀 DLP Agent starting incremental monitoring...")
+    debug_print("🚀 DLP Agent starting with dual AI+Sklearn classification...")
+
+    # Load or train sklearn model
+    load_sklearn_model()
+
     threading.Thread(target=monitor_clipboard, daemon=True).start()
     start_keylogger()
     threading.Thread(target=scan_dirs, daemon=True).start()
@@ -598,14 +890,12 @@ if __name__ == "__main__":
         "📋 Clipboard, ⌨️ Keystrokes, and 📂 Incremental file scanning running..."
     )
 
-    # Show initial stats
     debug_print(
         f"[INITIAL STATE] {len(existing_files_in_db)} files already in database"
     )
 
     while True:
         time.sleep(5)
-        # Periodically show stats
         if stats["files_scanned"] % 100 == 0 and stats["files_scanned"] > 0:
             debug_print(
                 f"[STATS] Files: {stats['files_scanned']}, Hits: {stats['hits_detected']}, Reports: {stats['reports_sent']}"

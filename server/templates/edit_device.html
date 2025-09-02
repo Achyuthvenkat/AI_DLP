@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Edit Device</h2>
+
+<div style="max-width: 600px;">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div style="padding: 10px; margin: 10px 0; border-radius: 4px; background-color: {% if category == 'error' %}#f8d7da; color: #721c24; border: 1px solid #f5c6cb{% else %}#d4edda; color: #155724; border: 1px solid #c3e6cb{% endif %};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <form method="POST" style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; border: 1px solid #dee2e6;">
+        <div style="margin-bottom: 15px;">
+            <label for="device_id" style="display: block; margin-bottom: 5px; font-weight: bold;">Device ID *</label>
+            <input type="text" id="device_id" name="device_id" value="{{ device.device_id }}" required 
+                   style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px;">
+            <small style="color: #6c757d;">Unique identifier for this device</small>
+        </div>
+
+        <div style="margin-bottom: 15px;">
+            <label for="owner_email" style="display: block; margin-bottom: 5px; font-weight: bold;">Owner Email</label>
+            <input type="email" id="owner_email" name="owner_email" value="{{ device.owner_email or '' }}" 
+                   style="width: 100%; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 14px;">
+            <small style="color: #6c757d;">Optional - email of the device owner</small>
+        </div>
+
+        <div style="margin-bottom: 15px; padding: 10px; background-color: #e9ecef; border-radius: 4px;">
+            <strong>Device Info:</strong><br>
+            <small style="color: #6c757d;">
+                Registered: {{ device.registered_at }}<br>
+                Internal ID: {{ device.id }}
+            </small>
+        </div>
+
+        <div style="margin-top: 20px;">
+            <button type="submit" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 4px; cursor: pointer; margin-right: 10px;">
+                Update Device
+            </button>
+            <a href="{{ url_for('devices_page') }}" style="background-color: #6c757d; color: white; padding: 10px 20px; text-decoration: none; border-radius: 4px;">
+                Cancel
+            </a>
+        </div>
+    </form>
+</div>
+
+<div style="margin-top: 30px; padding: 15px; background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 4px;">
+    <h4 style="margin-top: 0; color: #856404;">Warning</h4>
+    <p style="margin-bottom: 0; color: #856404;">
+        Changing the Device ID will affect existing events and policy assignments linked to this device.
+        Make sure to update any related configurations accordingly.
+    </p>
+</div>
+{% endblock %}

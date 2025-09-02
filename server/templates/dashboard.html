@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="mb-4">DLP Event Dashboard</h1>
+<h1 class="mb-4">AI SECURITY EVENT DASHBPARD</h1>
 
 <!-- Back Button -->
 <a href="javascript:history.back()" class="btn btn-secondary mb-3">← Back</a>
@@ -9,16 +9,25 @@
 <!-- Filter Section -->
 <form method="GET" action="{{ url_for('dashboard') }}" class="mb-4">
     <div class="row g-3">
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="ai_filter" class="form-label">AI Classification:</label>
             <select name="ai_filter" id="ai_filter" class="form-select">
-                <option value="">All Classifications</option>
+                <option value="">All AI Classifications</option>
                 {% for label in ai_labels %}
                 <option value="{{ label }}" {% if current_ai_filter == label %}selected{% endif %}>{{ label }}</option>
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
+            <label for="sklearn_filter" class="form-label">Sklearn Classification:</label>
+            <select name="sklearn_filter" id="sklearn_filter" class="form-select">
+                <option value="">All Sklearn Classifications</option>
+                {% for label in sklearn_labels %}
+                <option value="{{ label }}" {% if current_sklearn_filter == label %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2">
             <label for="device_filter" class="form-label">Device:</label>
             <select name="device_filter" id="device_filter" class="form-select">
                 <option value="">All Devices</option>
@@ -27,7 +36,7 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-2">
             <label for="event_type_filter" class="form-label">Event Type:</label>
             <select name="event_type_filter" id="event_type_filter" class="form-select">
                 <option value="">All Types</option>
@@ -36,7 +45,7 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <label for="user_filter" class="form-label">User Email:</label>
             <input type="text" name="user_filter" id="user_filter" class="form-control" 
                    placeholder="Search user email..." value="{{ current_user_filter }}">
@@ -51,10 +60,11 @@
 </form>
 
 <!-- Filter Status -->
-{% if current_ai_filter or current_device_filter or current_event_type_filter or current_user_filter %}
+{% if current_ai_filter or current_sklearn_filter or current_device_filter or current_event_type_filter or current_user_filter %}
 <div class="alert alert-info">
     <strong>Active Filters:</strong>
     {% if current_ai_filter %}<span class="badge bg-primary me-1">AI: {{ current_ai_filter }}</span>{% endif %}
+    {% if current_sklearn_filter %}<span class="badge bg-info me-1">Sklearn: {{ current_sklearn_filter }}</span>{% endif %}
     {% if current_device_filter %}<span class="badge bg-secondary me-1">Device: {{ current_device_filter }}</span>{% endif %}
     {% if current_event_type_filter %}<span class="badge bg-success me-1">Type: {{ current_event_type_filter }}</span>{% endif %}
     {% if current_user_filter %}<span class="badge bg-warning me-1">User: {{ current_user_filter }}</span>{% endif %}
@@ -74,8 +84,9 @@
                 <th>Target</th>
                 <th>Snippet</th>
                 <th>Policy</th>
-                <th>AI Label</th>
-                <th>AI Confidence</th>
+                <th>AI Classification</th>
+                <th>Sklearn Classification</th>
+                <th>Agreement</th>
             </tr>
         </thead>
         <tbody>
@@ -100,24 +111,43 @@
                 <td>{{ e.policy_id or 'N/A' }}</td>
                 <td>
                     {% if e.ai_label %}
-                        <span class="badge {% if e.ai_label == 'Confidential' %}bg-danger{% elif e.ai_label == 'Sensitive' %}bg-warning{% elif e.ai_label == 'Public' %}bg-success{% else %}bg-secondary{% endif %}">
+                        <span class="badge {% if e.ai_label == 'Confidential' %}bg-danger{% elif e.ai_label == 'Sensitive' %}bg-warning{% elif e.ai_label == 'Public' %}bg-success{% else %}bg-primary{% endif %}">
                             {{ e.ai_label }}
                         </span>
+                        {% if e.ai_confidence %}
+                            <br><small class="text-muted">{{ "%.1f"|format(e.ai_confidence * 100) }}%</small>
+                        {% endif %}
                     {% else %}
                         <span class="text-muted">N/A</span>
                     {% endif %}
                 </td>
                 <td>
-                    {% if e.ai_confidence %}
-                        {{ "%.1f"|format(e.ai_confidence * 100) }}%
+                    {% if e.sklearn_label %}
+                        <span class="badge {% if e.sklearn_label == 'Confidential' %}bg-danger{% elif e.sklearn_label == 'Sensitive' %}bg-warning{% elif e.sklearn_label == 'Public' %}bg-success{% else %}bg-primary{% endif %}">
+                            {{ e.sklearn_label }}
+                        </span>
+                        {% if e.sklearn_confidence %}
+                            <br><small class="text-muted">{{ "%.1f"|format(e.sklearn_confidence * 100) }}%</small>
+                        {% endif %}
                     {% else %}
                         <span class="text-muted">N/A</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if e.ai_label and e.sklearn_label %}
+                        {% if e.ai_label == e.sklearn_label %}
+                            <span class="badge bg-success">✓ Match</span>
+                        {% else %}
+                            <span class="badge bg-warning">✗ Differ</span>
+                        {% endif %}
+                    {% else %}
+                        <span class="text-muted">-</span>
                     {% endif %}
                 </td>
             </tr>
             {% else %}
             <tr>
-                <td colspan="9" class="text-center">No events found</td>
+                <td colspan="10" class="text-center">No events found</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -130,6 +160,7 @@
     <ul class="pagination justify-content-center">
         {% set filter_params = [] %}
         {% if current_ai_filter %}{% set _ = filter_params.append(('ai_filter', current_ai_filter)) %}{% endif %}
+        {% if current_sklearn_filter %}{% set _ = filter_params.append(('sklearn_filter', current_sklearn_filter)) %}{% endif %}
         {% if current_device_filter %}{% set _ = filter_params.append(('device_filter', current_device_filter)) %}{% endif %}
         {% if current_event_type_filter %}{% set _ = filter_params.append(('event_type_filter', current_event_type_filter)) %}{% endif %}
         {% if current_user_filter %}{% set _ = filter_params.append(('user_filter', current_user_filter)) %}{% endif %}
@@ -182,28 +213,59 @@
     <small class="text-muted">
         Showing page {{ current_page }} of {{ total_pages }} 
         ({{ events|length }} events on this page, {{ total_events }} total)
-        {% if current_ai_filter or current_device_filter or current_event_type_filter or current_user_filter %}
+        {% if current_ai_filter or current_sklearn_filter or current_device_filter or current_event_type_filter or current_user_filter %}
         - Filtered Results
         {% endif %}
     </small>
 </div>
 {% endif %}
 
-<!-- Chart -->
-<h2 class="mt-5">AI Classification Summary</h2>
-<div class="row">
+<!-- Dual Classification Charts -->
+<div class="row mt-5">
+    <div class="col-md-6">
+        <h3>AI Classification Distribution</h3>
+        <canvas id="aiClassificationChart" width="400" height="300"></canvas>
+    </div>
+    <div class="col-md-6">
+        <h3>Sklearn Classification Distribution</h3>
+        <canvas id="sklearnClassificationChart" width="400" height="300"></canvas>
+    </div>
+</div>
+
+<!-- Model Comparison Section -->
+<div class="row mt-4">
     <div class="col-md-8">
-        <canvas id="classificationChart" width="400" height="200"></canvas>
+        <h3>Model Agreement Analysis</h3>
+        <canvas id="agreementChart" width="400" height="200"></canvas>
     </div>
     <div class="col-md-4">
-        <h5>Quick Stats</h5>
+        <h4>Classification Stats</h4>
         <div class="card">
             <div class="card-body">
                 <p><strong>Total Events:</strong> {{ total_events }}</p>
                 <p><strong>Current Page:</strong> {{ current_page }} of {{ total_pages }}</p>
                 <p><strong>Events on Page:</strong> {{ events|length }}</p>
-                {% if current_ai_filter or current_device_filter or current_event_type_filter or current_user_filter %}
+                {% if current_ai_filter or current_sklearn_filter or current_device_filter or current_event_type_filter or current_user_filter %}
                 <p><small class="text-muted">Results are filtered</small></p>
+                {% endif %}
+                
+                <!-- Agreement metrics -->
+                {% set agreement_count = 0 %}
+                {% set total_classified = 0 %}
+                {% for e in events %}
+                    {% if e.ai_label and e.sklearn_label %}
+                        {% set total_classified = total_classified + 1 %}
+                        {% if e.ai_label == e.sklearn_label %}
+                            {% set agreement_count = agreement_count + 1 %}
+                        {% endif %}
+                    {% endif %}
+                {% endfor %}
+                
+                {% if total_classified > 0 %}
+                <hr>
+                <p><strong>Model Agreement:</strong></p>
+                <p>{{ agreement_count }} / {{ total_classified }} 
+                   ({{ "%.1f"|format((agreement_count / total_classified) * 100) }}%)</p>
                 {% endif %}
             </div>
         </div>
@@ -213,22 +275,36 @@
 <!-- Chart.js CDN -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- JS Chart -->
+<!-- Enhanced Chart JavaScript -->
 <script>
     // Chart Data
-    const labels = {{ chart_labels|safe }};
-    const values = {{ chart_values|safe }};
+    const aiLabels = {{ ai_chart_labels|safe }};
+    const aiValues = {{ ai_chart_values|safe }};
+    const sklearnLabels = {{ sklearn_chart_labels|safe }};
+    const sklearnValues = {{ sklearn_chart_values|safe }};
+    
+    const labelColorMap = {
+        'Confidential': '#dc3545', // Red
+        'Sensitive': '#ffc107', // Yellow
+        'Public': '#28a745', // Green
+        'Internal': '#007bff' // Blue
+    };
 
-    if (labels.length > 0 && values.length > 0) {
-        const ctx = document.getElementById('classificationChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'pie',
+    function getColors(labels) {
+        return labels.map(label => labelColorMap[label] || '#999999'); // Default to blue if not found
+    }
+
+    // AI Classification Chart
+    if (aiLabels.length > 0 && aiValues.length > 0) {
+        const aiCtx = document.getElementById('aiClassificationChart').getContext('2d');
+        new Chart(aiCtx, {
+            type: 'doughnut',
             data: {
-                labels: labels,
+                labels: aiLabels,
                 datasets: [{
-                    data: values,
-                    backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b', '#6f42c1', '#20c997'],
-                    borderWidth: 1
+                    data: aiValues,
+                    backgroundColor: getColors(aiLabels),
+                    borderWidth: 2
                 }]
             },
             options: {
@@ -239,14 +315,95 @@
                     },
                     title: {
                         display: true,
-                        text: '{% if current_ai_filter or current_device_filter or current_event_type_filter or current_user_filter %}Filtered {% endif %}AI Classifications'
+                        text: 'AI Model Classifications'
                     }
                 }
             }
         });
     } else {
-        document.getElementById('classificationChart').style.display = 'none';
-        document.querySelector('h2.mt-5').innerHTML = '<em>No data available for chart</em>';
+        document.getElementById('aiClassificationChart').style.display = 'none';
+        document.querySelector('.col-md-6:first-child h3').innerHTML = '<em>No AI classification data available</em>';
     }
+
+    // Sklearn Classification Chart
+    if (sklearnLabels.length > 0 && sklearnValues.length > 0) {
+        const sklearnCtx = document.getElementById('sklearnClassificationChart').getContext('2d');
+        new Chart(sklearnCtx, {
+            type: 'doughnut',
+            data: {
+                labels: sklearnLabels,
+                datasets: [{
+                    data: sklearnValues,
+                    backgroundColor: getColors(sklearnLabels),
+                    borderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    title: {
+                        display: true,
+                        text: 'Sklearn Model Classifications'
+                    }
+                }
+            }
+        });
+    } else {
+        document.getElementById('sklearnClassificationChart').style.display = 'none';
+        document.querySelector('.col-md-6:last-child h3').innerHTML = '<em>No sklearn classification data available</em>';
+    }
+
+    // Model Agreement Chart
+    const agreementCtx = document.getElementById('agreementChart').getContext('2d');
+    
+    // Calculate agreement data from current page events
+    let agreementData = { match: 0, differ: 0, partial: 0 };
+    {% for e in events %}
+        {% if e.ai_label and e.sklearn_label %}
+            {% if e.ai_label == e.sklearn_label %}
+                agreementData.match++;
+            {% else %}
+                agreementData.differ++;
+            {% endif %}
+        {% else %}
+            agreementData.partial++;
+        {% endif %}
+    {% endfor %}
+
+    new Chart(agreementCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Models Agree', 'Models Disagree', 'Partial Classification'],
+            datasets: [{
+                label: 'Event Count',
+                data: [agreementData.match, agreementData.differ, agreementData.partial],
+                backgroundColor: ['#28a745', '#dc3545', '#ffc107'],
+                borderWidth: 1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                title: {
+                    display: true,
+                    text: 'AI vs Sklearn Model Agreement (Current Page)'
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
 </script>
 {% endblock %}
