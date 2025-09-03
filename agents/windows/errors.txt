@@ -465,3 +465,337 @@ No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\3ff
 No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\5d6a2fdf\Z6zE.py
 No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-5bdb0520\HuZh.py
 No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\test\agents\windows\dlp_agent.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\DLP1\browser_extension\options.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\DLP1\browser_extension\detectors.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2093b98b\Bz4K.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\DLP1\browser_extension\popup.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\ai-dlp-suite\browser_extension\popup.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\DLP1\browser_extension\detectors.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2093b98b\Bz4K.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\DLP1\browser_extension\popup.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\ai-dlp-suite\browser_extension\popup.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\DLP1\browser_extension\content.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\ai-dlp-suite\browser_extension\detectors.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\ai-dlp-suite\agents\windows\errors.txt
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\ai-dlp-suite\browser_extension\options.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\ai-dlp-suite\browser_extension\content.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\9671770\T8gV.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\469023f2\kSRl.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\489af054\5lZW.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\yv8H.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-1374b8d5\49Wt.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\3ff22b29\8coC.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\VAPT_Governance_app-main\backend\app.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\Vapt\backend\__init__.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\1c3a7763\9qgk.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\7Td7.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\DLP1\agents\windows\dlp_agent.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-12d5b908\5uvZ.txt
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\ai-dlp-suite\browser_extension\popup.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\xhxF.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\VAPT_Governance_app-main\backend\utils\risk_calculator.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-1c62b37b\kkH4.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-68cf31f2\2WYp.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\3ff22b29\QzWF.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\Figaroo\server\controllers\__init__.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\ollama app.exe\EBWebView\Subresource Filter\Unindexed Rules\10.34.0.81\adblock_snippet.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\Hd7l.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2093b98b\tydP.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\DLP1\browser_extension\content.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\dxGM.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\14bae76e\B60o.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\OIiV.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\6cd7d843\kDuM.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\3ff22b29\Hyf4.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\ollama app.exe\EBWebView\ZxcvbnData\3.1.0.0\test.txt
+No sensitive content in C:\Users\achyuthcg\Downloads\sbom_client.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\aws-security-backend\app\aws_fetcher.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\WFbc.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\aws-security-backend\app\config.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\test\browser_extension_mv3\content.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\fd8j.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\99O9.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-573aedac\bFYb.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\76d74371\TKMC.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\g5VZ.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\VR8u.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\ZdED.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\FfKc.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-1087c806\yBSQ.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Python\Python313\Scripts\jp.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\tXAW.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-53f0de6\mOBV.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\Figaroo\server\routes\websocket_routes.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\5f53d08a\9qLy.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\ai-dlp-suite\agents\windows\service.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\0i3t.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\7d0bf0cb\b8b4.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\1c3a7763\kWOD.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\VAPT_Governance_app-main\backend\utils\fallback_id.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\5f53d08a\TqJ8.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-5bdb0520\QiI9.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\Vapt\backend\analyze.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\0i3t.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\7d0bf0cb\b8b4.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\1c3a7763\kWOD.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\VAPT_Governance_app-main\backend\utils\fallback_id.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\5f53d08a\TqJ8.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-5bdb0520\QiI9.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\Vapt\backend\analyze.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\3ff22b29\Qdv3.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\iqEp.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2598d5e5\2g5w.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\5d6a2fdf\Ixar.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-1acb261e\rC10.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\KBQh.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\r7D6.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\DLP1\agents\windows\requirements.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\KSAG.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\Figaroo\server\utils\log.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\V4gE.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\4af76a4d\bO7L.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\51da0881\UTye.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\53121220\STUy.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\ai-dlp-suite\server\requirements.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\6aec3dcf\z2dU.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\3ff22b29\ba3t.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2e7460af\YhuW.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\54cd25f2\sxgz.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\usb_Security\New Text Document.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\xtuE.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-48b9d5d5\OaxQ.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Google\AndroidStudio2025.1.1\bundled_plugins.txt
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\aws-security-backend\app\routes.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\ZmSt.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\ai-dlp-suite\browser_extension\options.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-61ae9d0d\3JBU.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\Y4YH.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\zizU.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\469023f2\ifUC.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\JzEx.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\VAPT_Governance_app-main\backend\requirements.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\9671770\T8gV.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\39381752\D4IE.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\3cfd1ae\8tpx.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\DLP1\browser_extension\options.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-35bc9cfa\g5dd.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\76d74371\EUvV.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\1d7bb0af\znbH.py
+No sensitive content in C:\Users\achyuthcg\Downloads\aws_security_project_overview.pdf
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2e7460af\kKo7.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\ai-dlp-guard-fixed\popup.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\ollama app.exe\EBWebView\ZxcvbnData\3.1.0.0\surnames.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2093b98b\msjR.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\40a0f3b8\x6wf.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2286a12f\kI8p.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\uPwl.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-70e1757c\HRXu.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\5RzK.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\7d0bf0cb\V7z6.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\3ff22b29\BEqx.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-1087c806\buN1.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\29352523\Ukc5.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\19130328\tBrI.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\5d6a2fdf\Z6zE.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\3ff22b29\Y7w6.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\Figaroo\server\agents\__init__.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-38ed8103\e877.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-34a872a7\DZJg.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\rmLH.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\51da0881\bB1f.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-53b3e1b9\2sZ9.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\469023f2\9YYQ.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\Figaroo\server\routes\chat_routes.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\test\server\requirements.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-34a872a7\gKW8.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\6cd7d843\wIKZ.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\ai-dlp-guard-fixed\background.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\ai-dlp-guard-fixed\content.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\DLP1\agents\windows\errors.txt
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\aws-security-backend\run.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\VAPT_Governance_app-main\requirements.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\1c3a7763\eLeG.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\BwLh.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Microsoft\Windows\PowerShell\PSReadLine\ConsoleHost_history.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2e636a0b\rk90.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\76d74371\dcw7.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Softland\novaPDF 11\printers.csv
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\d0Hf.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-2ec41500\EK0S.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\3cfd1ae\HYzn.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-34a872a7\EPk9.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\1c3a7763\2ZGe.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\m2He.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\VAPT_Governance_app-main\backend\models\fallback_cwe_map.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\R1N7.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\5f53d08a\ZI85.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-110c7467\R3f6.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\DVM3.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\vgOY.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-d9bc964\zfBK.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\4af76a4d\GfV1.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\DLP_incidents_dashboard\DLP_incidents_dashboard\requirements.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\ollama app.exe\EBWebView\ZxcvbnData\3.1.0.0\female_names.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\globalStorage\github.copilot-chat\debugCommand\copilotDebugCommand.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-1acb261e\R4yp.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\53121220\Hh9O.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\VAPT_Governance_app-main\backend\utils\pdf_parser.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\76d74371\skc1.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\usb_Security\Server\config.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\aws-security-backend\requirements.txt
+No sensitive content in C:\Users\achyuthcg\Downloads\Sbomb.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\76d74371\bsXY.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\6cd7d843\eKww.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\Vf65.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\Vapt\app.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\42e86626\mlYt.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-4601178f\7o70.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-34a872a7\FWRu.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-d9bc964\x2bP.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\JpHQ.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-f283a83\FcAE.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\yIqs.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\sxNp.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-35bc9cfa\jRwy.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\446d3b01\5nov.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\9Yvf.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\QVuA.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\OwDk.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\76d74371\FMq2.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\Qpz0.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-5019fbd9\td9h.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\1cdb0f88\h4VE.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-34a872a7\yX66.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-5d3819f9\JZ47.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\469023f2\jTzb.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-6126f859\02Uh.py
+No sensitive content in C:\Users\achyuthcg\out.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-5bdb0520\2uW6.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\Z0bl.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\6aec3dcf\8eaq.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-2ec41500\jy6F.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\ZdEZ.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\DLP_incidents_dashboard\DLP_incidents_dashboard\dashboard3.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-72bf5cb3\9CBH.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\d7fcd14\DdOy.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\Figaroo\server\controllers\chat_controller.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\Sbom_project\requirements.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-d9bc964\2ydx.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-70e251bb\oYd6.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\3ff22b29\xWOT.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\insta_scraper\requirements.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\4af76a4d\BGyx.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-2e29d8ef\bcGj.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-5bdb0520\qROw.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\3ff22b29\hBAC.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\bcC8.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\ETT0.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\SL1H.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\test\agents\windows\service.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-5bdb0520\HuZh.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-34a872a7\W889.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\ugOw.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-34a872a7\OEul.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\5KxI.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\54e501f5\4EDn.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-a059af3\mDUt.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\3c19ff90\RsQi.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\xfi1.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-62b349c2\hXFt.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\ai-dlp-suite\agents\windows\dlp_agent.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\7jp2.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\5d6a2fdf\dpe9.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-53f0de6\td3H.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\42e86626\Qe31.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\JNz7.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\5f53d08a\MatK.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\9134255\w46P.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\g06t.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\VAPT_Governance_app-main\backend\utils\compliance_checker.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\vOqT.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\kg1f.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\469023f2\7X4h.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\O1Z2.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\usb_Security\Client\config.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\4af76a4d\2Qkm.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-110c7467\3iFO.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\62wj.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Python\Python313\Scripts\wmiweb.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\76d74371\BHSr.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\469023f2\5ufK.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2e7460af\y7Mp.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\4d4b0842\S9lr.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\EHX7.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-2ec41500\vPLR.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\OJAE.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\ai-dlp-suite\browser_extension\content.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\GA1n.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\GUzU.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\76d74371\srf1.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-1acb261e\ilZH.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\Z4Dd.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\hJ0L.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-5bdb0520\SqZb.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\0RWt.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-38ed8103\Y5VT.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\5d301168\Oupy.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\VAPT_Governance_app-main\frontend\src\services\api.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\VAPT_Governance_app-main\backend\app_log.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\3cfd1ae\O3ZW.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\ai-dlp-suite\browser_extension\detectors.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\test\browser_extension_mv3\detectors.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-d9bc964\HluC.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-2a597fb3\ubsX.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\test\agents\windows\dlp_agent.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-35bc9cfa\dHN8.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\Z2oG.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\51da0881\XwOj.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\39381752\mtuD.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\432f814\JkGg.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\DLP1\agents\windows\service.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\RgTV.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-12d5b908\sr7O.txt
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\Figaroo\server\agents\voice_agents.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\6cd7d843\2iDs.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\432f814\4xB2.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\test\agents\windows\requirements.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-573aedac\mnmy.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-6126f859\r1kC.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\51da0881\Wzis.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\qSre.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-1acb261e\oAXr.js
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Documents\WindowsPowerShell\Modules\ExchangeOnlineManagement\3.8.0\license.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\29352523\0bM6.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\Hym7.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\5t3X.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2093b98b\Bz4K.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\qUGD.py
+No sensitive content in C:\Users\Default\out.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\snMp.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\eRlU.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\29352523\y8am.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\DLP\test\browser_extension_mv3\popup.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\275d199d\ivsG.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-64dbce2\mO4n.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-5bdb0520\TfuN.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\11919807\Ryon.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\usb_Security\Client\usbserialinfo.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\5f53d08a\sDgG.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\4af76a4d\57Cm.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\usb_Security\Client\utils.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-68cf31f2\JCGd.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2cba6089\OccL.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\76d74371\ERXR.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\1c3a7763\QbXJ.py
+No sensitive content in C:\Users\achyuthcg\Downloads\sbom_client_updated.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\TITAN\VAPT_Governance_app-main\backend\utils\openai_extractor.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\14bae76e\sLHq.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-44b8332e\bkFC.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\111dd1e9\i8J6.py
+No sensitive content in C:\Users\achyuthcg\OneDrive - Titan Company Limited\Desktop\Figaroo\server\routes\architecture_routes.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-2e29d8ef\OMky.txt
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-573aedac\EONd.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\6cd7d843\thJq.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\2ee56e08\9qGA.py
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\-34a872a7\bfsz.js
+No sensitive content in C:\Users\achyuthcg\AppData\Roaming\Code\User\History\3b50817e\2EPV.txt

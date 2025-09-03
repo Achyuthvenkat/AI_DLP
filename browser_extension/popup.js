@@ -2,6 +2,9 @@
 document.addEventListener('DOMContentLoaded', async function() {
   console.log('🔧 Popup loaded');
   
+  // Load device ID setup first
+  await loadDeviceId();
+  
   // Get current tab info
   try {
     const tabs = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -21,7 +24,11 @@ document.addEventListener('DOMContentLoaded', async function() {
   await loadStats();
   await loadRecentBlocks();
   
-  // Button handlers
+  // Device ID button handlers
+  document.getElementById('save-device-btn').addEventListener('click', saveDeviceId);
+  document.getElementById('change-device-btn').addEventListener('click', showDeviceInput);
+  
+  // Other button handlers
   document.getElementById('settings-btn').addEventListener('click', function() {
     console.log('⚙️ Settings button clicked');
     
@@ -42,11 +49,122 @@ document.addEventListener('DOMContentLoaded', async function() {
   
   document.getElementById('dashboard-btn').addEventListener('click', function() {
     console.log('📊 Dashboard button clicked');
-    chrome.tabs.create({ url: 'http://127.0.0.1:8000/dashboard' }, (tab) => {
+    chrome.tabs.create({ url: 'http://10.160.14.76:8059/dashboard' }, (tab) => {
       console.log('Dashboard tab created:', tab.id);
     });
   });
+  
+  // Allow Enter key to save device ID
+  document.getElementById('device-id-input').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+      saveDeviceId();
+    }
+  });
 });
+
+async function loadDeviceId() {
+  try {
+    const result = await chrome.storage.local.get(['device_id']);
+    const deviceId = result.device_id;
+    
+    if (deviceId) {
+      // Show configured state
+      document.getElementById('device-input-container').style.display = 'none';
+      document.getElementById('device-display-container').style.display = 'block';
+      document.getElementById('device-display').textContent = `Device: ${deviceId}`;
+      document.getElementById('device-setup').classList.add('configured');
+      console.log('📱 Device ID loaded:', deviceId);
+    } else {
+      // Show input state
+      showDeviceInput();
+      console.log('📱 No device ID configured');
+    }
+  } catch (error) {
+    console.error('Error loading device ID:', error);
+    showDeviceInput();
+  }
+}
+
+async function saveDeviceId() {
+  const deviceInput = document.getElementById('device-id-input');
+  const deviceId = deviceInput.value.trim();
+  
+  if (!deviceId) {
+    // Simple validation feedback
+    deviceInput.style.borderColor = '#f44336';
+    deviceInput.placeholder = 'Device ID is required';
+    setTimeout(() => {
+      deviceInput.style.borderColor = '#ddd';
+      deviceInput.placeholder = 'Enter your device ID (e.g., LAPTOP-123)';
+    }, 2000);
+    return;
+  }
+  
+  // Basic validation - alphanumeric, hyphens, underscores only
+  if (!/^[a-zA-Z0-9_-]+$/.test(deviceId)) {
+    deviceInput.style.borderColor = '#f44336';
+    deviceInput.placeholder = 'Only letters, numbers, - and _ allowed';
+    deviceInput.value = '';
+    setTimeout(() => {
+      deviceInput.style.borderColor = '#ddd';
+      deviceInput.placeholder = 'Enter your device ID (e.g., LAPTOP-123)';
+    }, 3000);
+    return;
+  }
+  
+  try {
+    // Save to storage
+    await chrome.storage.local.set({ device_id: deviceId });
+    
+    // Update UI to show configured state
+    document.getElementById('device-input-container').style.display = 'none';
+    document.getElementById('device-display-container').style.display = 'block';
+    document.getElementById('device-display').textContent = `Device: ${deviceId}`;
+    document.getElementById('device-setup').classList.add('configured');
+    
+    console.log('✅ Device ID saved:', deviceId);
+    
+    // Notify content scripts about the device ID update
+    const tabs = await chrome.tabs.query({});
+    for (const tab of tabs) {
+      try {
+        await chrome.tabs.sendMessage(tab.id, {
+          type: 'device_id_updated',
+          device_id: deviceId
+        });
+      } catch (error) {
+        // Ignore errors for tabs that don't have our content script
+      }
+    }
+  } catch (error) {
+    console.error('Error saving device ID:', error);
+    deviceInput.style.borderColor = '#f44336';
+    deviceInput.placeholder = 'Error saving device ID';
+    setTimeout(() => {
+      deviceInput.style.borderColor = '#ddd';
+      deviceInput.placeholder = 'Enter your device ID (e.g., LAPTOP-123)';
+    }, 2000);
+  }
+}
+
+function showDeviceInput() {
+  // Show input state
+  document.getElementById('device-input-container').style.display = 'block';
+  document.getElementById('device-display-container').style.display = 'none';
+  document.getElementById('device-setup').classList.remove('configured');
+  
+  // Focus the input for better UX
+  setTimeout(() => {
+    document.getElementById('device-id-input').focus();
+  }, 100);
+  
+  // Load current device ID if changing
+  chrome.storage.local.get(['device_id']).then(result => {
+    if (result.device_id) {
+      document.getElementById('device-id-input').value = result.device_id;
+    }
+  });
+}
 
 async function loadStats() {
   try {

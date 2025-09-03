@@ -11,3 +11,5 @@ docker-compose.yml
 .bat
 .log
 *.ipynb
+/__pycache__/
+*.pkl

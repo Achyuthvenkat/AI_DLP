@@ -28,7 +28,7 @@ CONFIG = {
         # Enhanced API Keys
         "openai_api_key": r"sk-[A-Za-z0-9_-]{48,}",
         "gemini_api_key": r"AIza[A-Za-z0-9_-]{35}",
-        "deepseek_api_key": r"ds-[A-Za-z0-9_-]{16,}",
+        "deepseek_api_key": r"ds-[A-Za-z0-9_-]{32,}",
         "general_secrets": r"(?i)(secret|password|token|key)[\s:=]+['\"]?[\w\-@#$%^&*()+=]{8,}['\"]?",
         "aws_secret": r"AKIA[0-9A-Z]{16}",
         "private_key": r"-----BEGIN (?:RSA|EC|DSA)? PRIVATE KEY-----",

@@ -15,16 +15,30 @@ chrome.runtime.onStartup.addListener(() => {
   fetchJWTToken();
 });
 
+// Get device ID from storage
+async function getDeviceId() {
+  try {
+    const result = await chrome.storage.local.get(['device_id']);
+    return result.device_id || `browser_extension_${Date.now()}`;
+  } catch (error) {
+    console.error('Error getting device ID:', error);
+    return `browser_extension_${Date.now()}`;
+  }
+}
+
 // Fetch JWT token from server
 async function fetchJWTToken() {
   try {
     console.log("🔄 Attempting to fetch JWT token from server...");
     
+    const deviceId = await getDeviceId();
+    console.log("📱 Using device ID for token request:", deviceId);
+    
     const response = await fetch("http://10.160.14.76:8059/api/token", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        device_id: "browser_extension_" + Date.now()
+        device_id: deviceId
       })
     });
     
@@ -63,6 +77,8 @@ async function sendToServer(eventData) {
     await fetchJWTToken();
   }
   
+  const deviceId = await getDeviceId();
+  
   try {
     const headers = {
       "Content-Type": "application/json"
@@ -72,14 +88,14 @@ async function sendToServer(eventData) {
       headers["Authorization"] = `Bearer ${JWT_TOKEN}`;
     }
     
-    console.log("📤 Sending event to server:", eventData.type);
+    console.log("📤 Sending event to server:", eventData.type, "from device:", deviceId);
     
     const response = await fetch(SERVER_URL, {
       method: "POST",
       headers: headers,
       body: JSON.stringify({
         events: [{
-          device_id: "browser_extension",
+          device_id: eventData.device_id || deviceId,
           user_email: "browser_user",
           event_type: eventData.type,
           target: eventData.url,
@@ -89,6 +105,10 @@ async function sendToServer(eventData) {
             return acc;
           }, {}) : {},
           ai_classification: {
+            label: "Sensitive",
+            confidence: 0.8
+          },
+          sklearn_classification: {
             label: "Sensitive",
             confidence: 0.8
           }
@@ -110,7 +130,7 @@ async function sendToServer(eventData) {
     }
   } catch (error) {
     console.error("❌ Network error sending to server:", error.message);
-    console.log("📝 Event will be lost:", eventData.type, "on", eventData.url);
+    console.log("📝 Event will be lost:", eventData.type, "on", eventData.url, "from device:", deviceId);
   }
 }
 
@@ -126,18 +146,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   // Handle different message types
   switch (message.type) {
     case "sensitive_detected":
-      console.warn("🚨 Sensitive data detected:", message.matches, "on", sender?.tab?.url);
+      console.warn("🚨 Sensitive data detected:", message.matches, "on", sender?.tab?.url, "from device:", message.device_id);
       
       // Update stats and store block
       updateStats(message);
       
-      // Show notification
+      // Show notification with device ID
       try {
         chrome.notifications.create({
           type: "basic",
           iconUrl: "icon48.png",
           title: "🚨 AI DLP - Sensitive Data Blocked",
-          message: `Detected: ${message.matches.join(", ")} on ${sender?.tab?.url || 'unknown site'}`
+          message: `Device: ${message.device_id || 'Unknown'}\nDetected: ${message.matches.join(", ")} on ${sender?.tab?.url || 'unknown site'}`
         });
       } catch (e) {
         console.error("Failed to show notification:", e);
@@ -148,25 +168,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         type: "browser_input_blocked",
         url: message.url,
         matches: message.matches,
-        snippet: message.snippet
+        snippet: message.snippet,
+        device_id: message.device_id
       });
       
       sendResponse({ status: "reported" });
       break;
       
     case "form_blocked":
-      console.warn("🚨 Form submission blocked:", message.matches, "on", sender?.tab?.url);
+      console.warn("🚨 Form submission blocked:", message.matches, "on", sender?.tab?.url, "from device:", message.device_id);
       
       // Update stats and store block
       updateStats(message);
       
-      // Show notification
+      // Show notification with device ID
       try {
         chrome.notifications.create({
           type: "basic",
           iconUrl: "icon48.png",
           title: "🚨 AI DLP - Form Submission Blocked",
-          message: `Blocked form with: ${message.matches.join(", ")}`
+          message: `Device: ${message.device_id || 'Unknown'}\nBlocked form with: ${message.matches.join(", ")}`
         });
       } catch (e) {
         console.error("Failed to show notification:", e);
@@ -177,25 +198,26 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         type: "browser_form_blocked",
         url: message.url,
         matches: message.matches,
-        snippet: message.snippet
+        snippet: message.snippet,
+        device_id: message.device_id
       });
       
       sendResponse({ status: "blocked" });
       break;
       
     case "file_blocked":
-      console.warn("🚨 File upload blocked:", message.filename, "on", sender?.tab?.url);
+      console.warn("🚨 File upload blocked:", message.filename, "on", sender?.tab?.url, "from device:", message.device_id);
       
       // Update stats and store block
       updateStats(message);
       
-      // Show notification
+      // Show notification with device ID
       try {
         chrome.notifications.create({
           type: "basic",
           iconUrl: "icon48.png",
           title: "🚨 AI DLP - File Upload Blocked",
-          message: `Blocked file: ${message.filename}`
+          message: `Device: ${message.device_id || 'Unknown'}\nBlocked file: ${message.filename}`
         });
       } catch (e) {
         console.error("Failed to show notification:", e);
@@ -206,14 +228,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         type: "browser_file_blocked",
         url: message.url,
         matches: message.matches,
-        snippet: `File: ${message.filename}`
+        snippet: `File: ${message.filename}`,
+        device_id: message.device_id
       });
       
       sendResponse({ status: "file_blocked" });
       break;
       
     case "content_loaded":
-      console.log("✅ Content script loaded on:", message.url);
+      console.log("✅ Content script loaded on:", message.url, "device:", message.device_id);
       sendResponse({ status: "acknowledged" });
       break;
       
@@ -246,7 +269,7 @@ async function updateStats(blockData) {
     
     await chrome.storage.local.set({ dlp_stats: stats });
     
-    // Store recent blocks (keep last 50)
+    // Store recent blocks (keep last 50) with device ID
     const blocksResult = await chrome.storage.local.get(['recent_blocks']);
     const blocks = blocksResult.recent_blocks || [];
     
@@ -254,7 +277,8 @@ async function updateStats(blockData) {
       timestamp: blockData.timestamp || Date.now(),
       matches: blockData.matches,
       url: blockData.url,
-      type: blockData.type
+      type: blockData.type,
+      device_id: blockData.device_id || 'Unknown'
     });
     
     // Keep only last 50 blocks

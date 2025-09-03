@@ -111,71 +111,222 @@ def luhn_check(card_number):
 
 # For Scikit learn model training
 def create_training_data():
-    """Create synthetic training data for scikit-learn model"""
+    """Create enhanced synthetic training data for scikit-learn model with proper confidence mapping"""
     training_data = []
 
-    # Confidential examples
+    # Confidential examples (0.75-1.0 confidence range)
     confidential_samples = [
+        # API Keys and Tokens
         (
             "OpenAI API key: sk-abc123xyz456def789ghi012jkl345mno678pqr901stu234",
             "Confidential",
         ),
         ("Gemini API key: AIzaSyDaGmWKa4JsXZ-HjGw7ISLn_3namBGewQe", "Confidential"),
         ("DeepSeek API: ds-abc123xyz456def789", "Confidential"),
-        ("Database password: db_pass=SecretP@ssw0rd123", "Confidential"),
-        ("Titan Company Limited R&D blueprint for Orion project", "Confidential"),
-        ("Confidential Titan financial report Q3-2024", "Confidential"),
-        ("-----BEGIN RSA PRIVATE KEY-----", "Confidential"),
-        ("JWT TOKEN: wefwrf", "Confidential"),
-        ('password="MySecretPassword123"', "Confidential"),
-    ]
-
-    # Sensitive examples
-    sensitive_samples = [
-        ("PAN number: FURPA3446B", "Sensitive"),
-        ("Aadhaar: 123456789012", "Sensitive"),
-        ("Credit card: 4532-1234-5678-9012", "Sensitive"),
-        ("HR document: Employee salary slip for March 2024", "Sensitive"),
-        ("Medical report shows patient diagnosis of diabetes", "Sensitive"),
-        ("Employee payroll information confidential", "Sensitive"),
-    ]
-
-    # Internal examples
-    internal_samples = [
-        ("Meeting notes from quarterly review", "Internal"),
-        ("Internal email regarding project timeline", "Internal"),
-        ("Team budget allocation for Q4", "Internal"),
-        ("Project kickoff scheduled for next month", "Internal"),
-        ("For internal use only - process documentation", "Internal"),
-        ("Minutes of meeting - action items discussed", "Internal"),
-        ("Quarterly budget planning session", "Internal"),
-    ]
-
-    # Public examples
-    public_samples = [
         (
-            "Titan Company Limited announces launch of jewellery collection on March 15",
+            "AWS_SECRET_ACCESS_KEY=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+            "Confidential",
+        ),
+        ("AZURE_CLIENT_SECRET: abc123def456ghi789", "Confidential"),
+        ("Bearer token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9", "Confidential"),
+        ("JWT TOKEN: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9", "Confidential"),
+        # Database Credentials
+        ("Database password: db_pass=SecretP@ssw0rd123", "Confidential"),
+        ("MYSQL_ROOT_PASSWORD=SuperSecret123!", "Confidential"),
+        ("postgresql://user:password123@localhost:5432/database", "Confidential"),
+        ("mongodb://admin:secret123@cluster.mongodb.net/", "Confidential"),
+        # Private Keys and Certificates
+        ("-----BEGIN RSA PRIVATE KEY-----", "Confidential"),
+        ("-----BEGIN PRIVATE KEY-----", "Confidential"),
+        ("-----BEGIN ENCRYPTED PRIVATE KEY-----", "Confidential"),
+        ("-----BEGIN OPENSSH PRIVATE KEY-----", "Confidential"),
+        # Passwords and Authentication
+        ('password="MySecretPassword123"', "Confidential"),
+        ("admin_password: SuperSecure@2024", "Confidential"),
+        ("root:$6$salt$hashedpassword", "Confidential"),
+        ("SECRET_KEY = 'django-insecure-abcd1234'", "Confidential"),
+        # Company Confidential Information
+        ("Titan Company Limited R&D blueprint for Orion project", "Confidential"),
+        ("CONFIDENTIAL Titan financial report Q3-2024", "Confidential"),
+        ("TOP SECRET merger acquisition documents", "Confidential"),
+        ("Confidential source code repository access", "Confidential"),
+        ("Trade secret formula for new product development", "Confidential"),
+        ("Legal privileged attorney-client communication", "Confidential"),
+        # Security and Encryption
+        ("AES encryption key: 256bit-abcd1234efgh5678", "Confidential"),
+        ("SSL certificate private key", "Confidential"),
+        ("Two-factor authentication backup codes", "Confidential"),
+        ("Security vulnerability assessment report", "Confidential"),
+    ]
+
+    # Sensitive examples (0.50-0.75 confidence range)
+    sensitive_samples = [
+        # Personal Identification Numbers
+        ("PAN number: FURPA3446B", "Sensitive"),
+        ("PAN: ABCDE1234F", "Sensitive"),
+        ("Aadhaar number: 123456789012", "Sensitive"),
+        ("Aadhaar: 1234 5678 9012", "Sensitive"),
+        ("Social Security Number: 123-45-6789", "Sensitive"),
+        ("Driver License: DL123456789", "Sensitive"),
+        ("Passport Number: A12345678", "Sensitive"),
+        ("Voter ID: ABC1234567", "Sensitive"),
+        # Financial Information
+        ("Credit card number: 4532-1234-5678-9012", "Sensitive"),
+        ("Credit card: 4111111111111111", "Sensitive"),
+        ("Bank account: 123456789012", "Sensitive"),
+        ("IBAN: GB29 NWBK 6016 1331 9268 19", "Sensitive"),
+        ("SWIFT code with account details", "Sensitive"),
+        # Healthcare Information
+        ("Medical record number: MR123456", "Sensitive"),
+        ("Patient ID: PAT-2024-001", "Sensitive"),
+        ("Health insurance policy: HI789012345", "Sensitive"),
+        ("Medical diagnosis: diabetes mellitus type 2", "Sensitive"),
+        ("Prescription details for patient treatment", "Sensitive"),
+        ("Laboratory test results confidential", "Sensitive"),
+        # Employment and HR Data
+        ("Employee ID: EMP2024001", "Sensitive"),
+        ("Salary information: Rs. 850,000 annual", "Sensitive"),
+        ("HR document: Employee salary slip for March 2024", "Sensitive"),
+        ("Performance review confidential rating", "Sensitive"),
+        ("Employee background verification report", "Sensitive"),
+        ("Payroll processing data for employees", "Sensitive"),
+        ("Termination letter with severance details", "Sensitive"),
+        # Contact and Personal Information
+        ("Email: john.doe@company.com Phone: +91-9876543210", "Sensitive"),
+        ("Address: 123 Main Street, Mumbai 400001", "Sensitive"),
+        ("Date of birth: 15/08/1985", "Sensitive"),
+        ("Emergency contact information", "Sensitive"),
+    ]
+
+    # Internal examples (0.25-0.50 confidence range)
+    internal_samples = [
+        # Meeting and Communication
+        ("Meeting notes from quarterly business review", "Internal"),
+        ("Internal email regarding project timeline updates", "Internal"),
+        ("Conference call minutes for team sync", "Internal"),
+        ("Action items from leadership meeting", "Internal"),
+        ("Weekly status report for internal circulation", "Internal"),
+        # Project and Operations
+        ("Project kickoff scheduled for next month", "Internal"),
+        ("Internal project timeline and milestones", "Internal"),
+        ("Resource allocation for Q4 projects", "Internal"),
+        ("Team capacity planning document", "Internal"),
+        ("Project risk assessment internal review", "Internal"),
+        # Financial and Budget
+        ("Budget allocation for department Q4", "Internal"),
+        ("Cost center analysis for internal review", "Internal"),
+        ("Quarterly expense report summary", "Internal"),
+        ("Internal audit findings report", "Internal"),
+        ("Vendor contract negotiation notes", "Internal"),
+        # Process and Documentation
+        ("For internal use only - process documentation", "Internal"),
+        ("Standard operating procedures update", "Internal"),
+        ("Internal training materials draft", "Internal"),
+        ("Quality assurance checklist internal", "Internal"),
+        ("Change management process guidelines", "Internal"),
+        # Strategy and Planning
+        ("Strategic planning session outcomes", "Internal"),
+        ("Market analysis for internal planning", "Internal"),
+        ("Competitive intelligence briefing", "Internal"),
+        ("Product roadmap discussion points", "Internal"),
+        ("Internal feedback on new initiatives", "Internal"),
+    ]
+
+    # Public examples (0.0-0.25 confidence range)
+    public_samples = [
+        # Press Releases and Announcements
+        (
+            "Titan Company Limited announces launch of new jewellery collection on March 15",
             "Public",
         ),
-        ("This brochure describes features of Titan's smart wearables.", "Public"),
-        ("Press release: Titan Q2 sales grew by 12%.", "Public"),
-        ("Marketing flyer for Titan Watches – Flat 20% discount.", "Public"),
-        ("Titan website content: Careers page updated", "Public"),
-        ("Welcome to our official website", "Public"),
+        ("Press release: Titan Q2 sales grew by 12% year-over-year", "Public"),
+        ("Company announces expansion into new markets", "Public"),
+        ("Titan wins industry award for innovation", "Public"),
+        ("New store opening celebration event", "Public"),
+        # Marketing and Promotional
+        ("Marketing flyer for Titan Watches – Flat 20% discount offer", "Public"),
+        ("This brochure describes features of Titan's smart wearables", "Public"),
+        ("Summer collection now available in stores", "Public"),
+        ("Customer testimonials and success stories", "Public"),
         ("Product catalog available for download", "Public"),
-        ("Company news and announcements", "Public"),
+        # Website and General Information
+        ("Welcome to our official company website", "Public"),
+        ("Titan website content: Careers page updated with new positions", "Public"),
+        ("Contact us at support@titan.com for assistance", "Public"),
+        ("Company history and milestones", "Public"),
+        ("About us - company vision and mission", "Public"),
+        ("Store locator and contact information", "Public"),
+        # General Business Information
+        ("Public financial statements and annual reports", "Public"),
+        ("Industry news and market trends", "Public"),
+        ("Company newsletter for customers", "Public"),
+        ("Social media posts and updates", "Public"),
+        ("Customer service FAQ section", "Public"),
+        ("Terms of service and privacy policy", "Public"),
+        # Events and Community
+        ("Community outreach program details", "Public"),
+        ("Corporate social responsibility initiatives", "Public"),
+        ("Employee volunteer activities", "Public"),
+        ("Industry conference participation", "Public"),
+        ("Awards and recognition ceremonies", "Public"),
     ]
 
+    # Combine all samples
     all_samples = (
         confidential_samples + sensitive_samples + internal_samples + public_samples
     )
 
-    # Add some variations
+    # Add base samples
     for text, label in all_samples:
         training_data.append((text, label))
-        # Add variations with different formatting
+
+    # Add variations with different formatting and context
+    for text, label in all_samples:
+        # Uppercase variations
         training_data.append((text.upper(), label))
+
+        # Lowercase variations
         training_data.append((text.lower(), label))
+
+        # Mixed case variations
+        training_data.append((text.swapcase(), label))
+
+        # Add context variations for more realistic scenarios
+        if label == "Confidential":
+            training_data.append((f"URGENT: {text}", label))
+            training_data.append((f"Please handle this confidentially: {text}", label))
+            training_data.append((f"Restricted access: {text}", label))
+
+        elif label == "Sensitive":
+            training_data.append((f"Personal information: {text}", label))
+            training_data.append((f"Employee data: {text}", label))
+            training_data.append((f"Customer record: {text}", label))
+
+        elif label == "Internal":
+            training_data.append((f"Internal memo: {text}", label))
+            training_data.append((f"For team use: {text}", label))
+            training_data.append((f"Department update: {text}", label))
+
+        elif label == "Public":
+            training_data.append((f"Public announcement: {text}", label))
+            training_data.append((f"Customer information: {text}", label))
+            training_data.append((f"Marketing material: {text}", label))
+
+    # Add some edge cases and mixed content
+    edge_cases = [
+        ("Meeting about public product launch strategy", "Internal"),
+        ("Internal discussion of public press release", "Internal"),
+        ("Customer complaint containing personal details", "Sensitive"),
+        ("Public API documentation with example keys", "Internal"),
+        ("Marketing campaign targeting internal employees", "Internal"),
+        ("Public statement about confidential investigation", "Public"),
+        ("Customer service script for handling sensitive data", "Internal"),
+        ("Training manual on handling confidential information", "Internal"),
+        ("Public job posting for security role", "Public"),
+        ("Internal security audit of public website", "Internal"),
+    ]
+
+    training_data.extend(edge_cases)
 
     return training_data
 
@@ -250,7 +401,7 @@ def load_sklearn_model():
 
 
 def sklearn_classify(text: str):
-    """Classify text using scikit-learn model"""
+    """Enhanced classification with proper confidence mapping to specified ranges"""
     if not CONFIG["sklearn_classification"]["enabled"] or not sklearn_model:
         return {"label": "N/A", "confidence": 0.0}
 
@@ -259,17 +410,39 @@ def sklearn_classify(text: str):
         prediction = sklearn_model.predict([text])[0]
         probabilities = sklearn_model.predict_proba([text])[0]
 
-        # Get the confidence (highest probability)
-        confidence = float(max(probabilities))
+        # Get the raw confidence (highest probability)
+        raw_confidence = float(max(probabilities))
 
-        result = {"label": prediction, "confidence": round(confidence, 3)}
-        debug_print(f"[SKLEARN CLASSIFICATION] {result}")
+        # Map confidence to specified ranges based on classification
+        if prediction == "Confidential":
+            # Map to 0.75-1.0 range
+            mapped_confidence = 0.75 + (raw_confidence * 0.25)
+        elif prediction == "Sensitive":
+            # Map to 0.50-0.75 range
+            mapped_confidence = 0.50 + (raw_confidence * 0.25)
+        elif prediction == "Internal":
+            # Map to 0.25-0.50 range
+            mapped_confidence = 0.25 + (raw_confidence * 0.25)
+        elif prediction == "Public":
+            # Map to 0.0-0.25 range
+            mapped_confidence = 0.0 + (raw_confidence * 0.25)
+        else:
+            # Default to Internal range for unknown labels
+            mapped_confidence = 0.25 + (raw_confidence * 0.25)
+
+        # Ensure confidence is within bounds and rounded
+        mapped_confidence = max(0.0, min(1.0, round(mapped_confidence, 3)))
+
+        result = {"label": prediction, "confidence": mapped_confidence}
+        debug_print(
+            f"[SKLEARN CLASSIFICATION] Raw: {raw_confidence:.3f} -> Mapped: {mapped_confidence:.3f} ({prediction})"
+        )
 
         return result
 
     except Exception as e:
         debug_print(f"[SKLEARN CLASSIFICATION ERROR] {e}")
-        return {"label": "Internal", "confidence": 0.4}
+        return {"label": "Internal", "confidence": 0.375}  # Middle of Internal range
 
 
 # ---------------- UTILS ----------------
@@ -523,7 +696,7 @@ def ai_classify(text: str):
         print(response)
 
         raw_content = (response.output_text or "").strip()
-        print(f"[AI RAW RESPONSE] {raw_content}")
+        debug_print(f"[AI RAW RESPONSE] {raw_content}")
         parsed = json.loads(raw_content)
 
         label = parsed.get("label", "Unknown")

@@ -61,6 +61,73 @@
       background: #4CAF50;
     }
     
+    .device-setup {
+      margin-bottom: 16px;
+      padding: 12px;
+      background: #e3f2fd;
+      border-radius: 6px;
+      border: 1px solid #2196F3;
+    }
+    
+    .device-setup.configured {
+      background: #e8f5e8;
+      border-color: #4CAF50;
+    }
+    
+    .device-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 6px;
+    }
+    
+    .device-input {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 12px;
+      box-sizing: border-box;
+    }
+    
+    .device-input:focus {
+      outline: none;
+      border-color: #2196F3;
+    }
+    
+    .device-display {
+      font-size: 12px;
+      color: #4CAF50;
+      font-weight: 500;
+      padding: 4px 8px;
+      background: #f1f8e9;
+      border-radius: 3px;
+    }
+    
+    .setup-btn {
+      margin-top: 6px;
+      padding: 4px 8px;
+      border: none;
+      border-radius: 3px;
+      font-size: 11px;
+      cursor: pointer;
+      background: #2196F3;
+      color: white;
+      transition: background-color 0.2s;
+    }
+    
+    .setup-btn:hover {
+      background: #1976D2;
+    }
+    
+    .setup-btn.configured {
+      background: #4CAF50;
+    }
+    
+    .setup-btn.configured:hover {
+      background: #388E3C;
+    }
+    
     .stats {
       margin-bottom: 16px;
     }
@@ -146,12 +213,31 @@
       margin-top: 2px;
       word-break: break-all;
     }
+    
+    .help-text {
+      font-size: 11px;
+      color: #666;
+      margin-top: 4px;
+    }
   </style>
 </head>
 <body>
   <div class="header">
     <div class="logo">🛡️</div>
     <div class="title">AI DLP Guard</div>
+  </div>
+  
+  <div class="device-setup" id="device-setup">
+    <div class="device-label">Device ID Setup</div>
+    <div id="device-input-container">
+      <input type="text" class="device-input" id="device-id-input" placeholder="Enter your device ID (e.g., LAPTOP-123)" maxlength="50">
+      <div class="help-text">This ID will be shown when sensitive data is detected</div>
+      <button class="setup-btn" id="save-device-btn">Save Device ID</button>
+    </div>
+    <div id="device-display-container" style="display: none;">
+      <div class="device-display" id="device-display"></div>
+      <button class="setup-btn configured" id="change-device-btn">Change ID</button>
+    </div>
   </div>
   
   <div class="status">

@@ -13,7 +13,7 @@ const DEFAULT_SETTINGS = {
   enabled: true,
   notifications: true,
   popups: true,
-  serverUrl: 'http://127.0.0.1:8000',
+  serverUrl: 'http://10.160.14.76:8059',
   serverReporting: true,
   rules: {
     pan: true,
@@ -156,7 +156,7 @@ async function testConnection() {
 }
 
 function viewDashboard() {
-  const serverUrl = document.getElementById('server-url').value.trim() || 'http://127.0.0.1:8000';
+  const serverUrl = document.getElementById('server-url').value.trim() || 'http://10.160.14.76:8059';
   chrome.tabs.create({ url: `${serverUrl}/dashboard` });
 }
 

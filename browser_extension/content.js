@@ -1,6 +1,26 @@
 // Enhanced content script with proper blocking and server communication
 console.log("✅ AI DLP Browser Extension content script injected on", location.href);
 
+// Global variable to store device ID
+let currentDeviceId = 'Unknown-Device';
+
+// Load device ID on startup
+loadDeviceId();
+
+async function loadDeviceId() {
+  try {
+    const result = await chrome.storage.local.get(['device_id']);
+    if (result.device_id) {
+      currentDeviceId = result.device_id;
+      console.log('📱 Device ID loaded in content script:', currentDeviceId);
+    } else {
+      console.log('📱 No device ID configured');
+    }
+  } catch (error) {
+    console.error('Error loading device ID in content script:', error);
+  }
+}
+
 function isTextInput(el) {
   if (!el) return false;
   if (el.tagName === "TEXTAREA") return true;
@@ -20,7 +40,7 @@ function getElementText(el) {
 }
 
 function showSensitiveDataPopup(matches, text) {
-  // Create popup
+  // Create popup with device ID
   const popup = document.createElement('div');
   popup.style.cssText = `
     position: fixed;
@@ -40,8 +60,11 @@ function showSensitiveDataPopup(matches, text) {
   
   popup.innerHTML = `
     <div style="color: #f44336; font-size: 24px; margin-bottom: 10px;">🚨 SENSITIVE DATA DETECTED</div>
-    <div style="margin-bottom: 15px; color: #333;">
+    <div style="margin-bottom: 10px; color: #333;">
       <strong>Detected:</strong> ${matches.join(", ")}
+    </div>
+    <div style="margin-bottom: 15px; color: #666; font-size: 14px; padding: 8px; background: #f5f5f5; border-radius: 4px;">
+      <strong>Device:</strong> ${currentDeviceId}
     </div>
     <div style="margin-bottom: 20px; color: #666; font-size: 14px;">
       This data has been blocked from submission to protect your privacy.
@@ -86,7 +109,7 @@ function handleSensitiveData(matches, text, element) {
     }
   }
   
-  // Show popup
+  // Show popup with device ID
   showSensitiveDataPopup(matches, text);
   
   // Send to background script for server reporting
@@ -96,7 +119,8 @@ function handleSensitiveData(matches, text, element) {
       matches: matches,
       snippet: text.substring(0, 200),
       url: window.location.href,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      device_id: currentDeviceId
     });
   } catch (e) {
     console.error("Failed to send message to background:", e);
@@ -129,7 +153,8 @@ document.addEventListener("submit", function (e) {
         matches: matches,
         snippet: text.substring(0, 200),
         url: window.location.href,
-        timestamp: Date.now()
+        timestamp: Date.now(),
+        device_id: currentDeviceId
       });
       return false;
     }
@@ -161,7 +186,8 @@ document.addEventListener("change", async function (e) {
               matches: matches,
               filename: file.name,
               url: window.location.href,
-              timestamp: Date.now()
+              timestamp: Date.now(),
+              device_id: currentDeviceId
             });
             return false;
           }
@@ -215,12 +241,22 @@ const observer = new MutationObserver(() => {
 
 observer.observe(document, { childList: true, subtree: true });
 
+// Listen for device ID updates from popup
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === 'device_id_updated') {
+    currentDeviceId = message.device_id;
+    console.log('📱 Device ID updated in content script:', currentDeviceId);
+    sendResponse({ status: 'updated' });
+  }
+});
+
 // Notify background that content script is loaded
 try {
   chrome.runtime.sendMessage({
     type: "content_loaded",
     url: window.location.href,
-    timestamp: Date.now()
+    timestamp: Date.now(),
+    device_id: currentDeviceId
   });
 } catch (e) {
   console.error("Failed to notify background:", e);
