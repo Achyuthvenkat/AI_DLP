@@ -1,4 +1,4 @@
-// Enhanced background service worker with server communication
+// Enhanced background service worker with AI platform differentiation
 console.log("🚀 AI DLP Browser Extension background service worker starting");
 
 const SERVER_URL = "http://10.160.14.76:8059/api/report";
@@ -88,7 +88,7 @@ async function sendToServer(eventData) {
       headers["Authorization"] = `Bearer ${JWT_TOKEN}`;
     }
     
-    console.log("📤 Sending event to server:", eventData.type, "from device:", deviceId);
+    console.log("📤 Sending event to server:", eventData.type, "from device:", deviceId, "site type:", eventData.site_type);
     
     const response = await fetch(SERVER_URL, {
       method: "POST",
@@ -105,12 +105,17 @@ async function sendToServer(eventData) {
             return acc;
           }, {}) : {},
           ai_classification: {
-            label: "Sensitive",
+            label: eventData.site_type === 'ai_platform' ? "Sensitive" : "Sensitive",
             confidence: 0.8
           },
           sklearn_classification: {
-            label: "Sensitive",
+            label: eventData.site_type === 'ai_platform' ? "Sensitive" : "Sensitive",
             confidence: 0.8
+          },
+          metadata: {
+            site_type: eventData.site_type,
+            behavior: eventData.behavior,
+            user_action: eventData.user_action || null
           }
         }]
       })
@@ -134,30 +139,43 @@ async function sendToServer(eventData) {
   }
 }
 
+// Get notification message based on site type and behavior
+function getNotificationMessage(message, isAIPlatform) {
+  const siteType = isAIPlatform ? 'AI Platform' : 'Business Platform';
+  const action = isAIPlatform ? 'Blocked' : 'Warning';
+  
+  return `${action} on ${siteType}\nDevice: ${message.device_id || 'Unknown'}\nDetected: ${message.matches?.join(", ") || 'Sensitive data'}`;
+}
+
 // Handle messages from content scripts
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("📨 Received message:", message.type, "from", sender?.tab?.url);
+  console.log("📨 Received message:", message.type, "from", sender?.tab?.url, "site type:", message.site_type);
   
   if (!message || !message.type) {
     sendResponse({ status: "ignored" });
     return;
   }
   
+  const isAIPlatform = message.site_type === 'ai_platform';
+  
   // Handle different message types
   switch (message.type) {
     case "sensitive_detected":
-      console.warn("🚨 Sensitive data detected:", message.matches, "on", sender?.tab?.url, "from device:", message.device_id);
+    case "sensitive_blocked":
+      const action = message.type === "sensitive_blocked" ? "blocked" : "detected";
+      console.log(`${isAIPlatform ? '🚨' : '⚠️'} Sensitive data ${action}:`, message.matches, "on", sender?.tab?.url, "from device:", message.device_id);
       
-      // Update stats and store block
+      // Update stats and store event
       updateStats(message);
       
-      // Show notification with device ID
+      // Show notification with appropriate messaging
       try {
+        const notificationTitle = isAIPlatform ? "🚨 AI DLP - Sensitive Data Blocked" : "⚠️ AI DLP - Sensitive Data Warning";
         chrome.notifications.create({
           type: "basic",
           iconUrl: "icon48.png",
-          title: "🚨 AI DLP - Sensitive Data Blocked",
-          message: `Device: ${message.device_id || 'Unknown'}\nDetected: ${message.matches.join(", ")} on ${sender?.tab?.url || 'unknown site'}`
+          title: notificationTitle,
+          message: getNotificationMessage(message, isAIPlatform)
         });
       } catch (e) {
         console.error("Failed to show notification:", e);
@@ -165,14 +183,16 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       
       // Send to server
       sendToServer({
-        type: "browser_input_blocked",
+        type: isAIPlatform ? "browser_input_blocked" : "browser_input_warning",
         url: message.url,
         matches: message.matches,
         snippet: message.snippet,
-        device_id: message.device_id
+        device_id: message.device_id,
+        site_type: message.site_type,
+        behavior: message.behavior
       });
       
-      sendResponse({ status: "reported" });
+      sendResponse({ status: isAIPlatform ? "blocked" : "warned" });
       break;
       
     case "form_blocked":
@@ -181,13 +201,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       // Update stats and store block
       updateStats(message);
       
-      // Show notification with device ID
+      // Show notification
       try {
         chrome.notifications.create({
           type: "basic",
           iconUrl: "icon48.png",
           title: "🚨 AI DLP - Form Submission Blocked",
-          message: `Device: ${message.device_id || 'Unknown'}\nBlocked form with: ${message.matches.join(", ")}`
+          message: `AI Platform Block\nDevice: ${message.device_id || 'Unknown'}\nBlocked form with: ${message.matches.join(", ")}`
         });
       } catch (e) {
         console.error("Failed to show notification:", e);
@@ -199,10 +219,30 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         url: message.url,
         matches: message.matches,
         snippet: message.snippet,
-        device_id: message.device_id
+        device_id: message.device_id,
+        site_type: message.site_type
       });
       
       sendResponse({ status: "blocked" });
+      break;
+      
+    case "form_warning":
+      console.warn("⚠️ Form submission warning:", message.matches, "on", sender?.tab?.url, "from device:", message.device_id);
+      
+      // Update stats and store warning
+      updateStats({ ...message, type: "sensitive_warning" });
+      
+      // Send to server
+      sendToServer({
+        type: "browser_form_warning",
+        url: message.url,
+        matches: message.matches,
+        snippet: message.snippet,
+        device_id: message.device_id,
+        site_type: message.site_type
+      });
+      
+      sendResponse({ status: "warned" });
       break;
       
     case "file_blocked":
@@ -211,13 +251,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       // Update stats and store block
       updateStats(message);
       
-      // Show notification with device ID
+      // Show notification
       try {
         chrome.notifications.create({
           type: "basic",
           iconUrl: "icon48.png",
           title: "🚨 AI DLP - File Upload Blocked",
-          message: `Device: ${message.device_id || 'Unknown'}\nBlocked file: ${message.filename}`
+          message: `AI Platform Block\nDevice: ${message.device_id || 'Unknown'}\nBlocked file: ${message.filename}`
         });
       } catch (e) {
         console.error("Failed to show notification:", e);
@@ -229,14 +269,51 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         url: message.url,
         matches: message.matches,
         snippet: `File: ${message.filename}`,
-        device_id: message.device_id
+        device_id: message.device_id,
+        site_type: message.site_type
       });
       
       sendResponse({ status: "file_blocked" });
       break;
       
+    case "file_warning":
+      console.warn("⚠️ File upload warning:", message.filename, "on", sender?.tab?.url, "from device:", message.device_id);
+      
+      // Update stats and store warning
+      updateStats({ ...message, type: "sensitive_warning" });
+      
+      // Send to server
+      sendToServer({
+        type: "browser_file_warning",
+        url: message.url,
+        matches: message.matches,
+        snippet: `File: ${message.filename}`,
+        device_id: message.device_id,
+        site_type: message.site_type
+      });
+      
+      sendResponse({ status: "file_warned" });
+      break;
+      
+    case "warning_acknowledged":
+      console.log("ℹ️ User acknowledged warning and chose to proceed:", message.user_action, "on", sender?.tab?.url);
+      
+      // Send acknowledgment to server
+      sendToServer({
+        type: "browser_warning_acknowledged",
+        url: message.url,
+        matches: message.matches,
+        snippet: message.snippet,
+        device_id: message.device_id,
+        user_action: message.user_action,
+        site_type: "business_platform"
+      });
+      
+      sendResponse({ status: "acknowledged" });
+      break;
+      
     case "content_loaded":
-      console.log("✅ Content script loaded on:", message.url, "device:", message.device_id);
+      console.log("✅ Content script loaded on:", message.url, "device:", message.device_id, "behavior:", message.behavior);
       sendResponse({ status: "acknowledged" });
       break;
       
@@ -248,12 +325,17 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true; // Keep message channel open for async response
 });
 
-// Update statistics
-async function updateStats(blockData) {
+// Update statistics - modified to handle warnings vs blocks
+async function updateStats(eventData) {
   try {
     // Update daily stats
     const result = await chrome.storage.local.get(['dlp_stats']);
-    const stats = result.dlp_stats || { blocks_today: 0, total_blocks: 0 };
+    const stats = result.dlp_stats || { 
+      blocks_today: 0, 
+      warnings_today: 0,
+      total_blocks: 0, 
+      total_warnings: 0
+    };
     
     // Check if it's a new day
     const today = new Date().toDateString();
@@ -261,32 +343,43 @@ async function updateStats(blockData) {
     
     if (lastDate !== today) {
       stats.blocks_today = 0;
+      stats.warnings_today = 0;
       stats.last_date = today;
     }
     
-    stats.blocks_today++;
-    stats.total_blocks++;
+    // Increment appropriate counters
+    const isWarning = eventData.type?.includes('warning') || eventData.site_type === 'business_platform';
+    
+    if (isWarning) {
+      stats.warnings_today++;
+      stats.total_warnings = (stats.total_warnings || 0) + 1;
+    } else {
+      stats.blocks_today++;
+      stats.total_blocks++;
+    }
     
     await chrome.storage.local.set({ dlp_stats: stats });
     
-    // Store recent blocks (keep last 50) with device ID
-    const blocksResult = await chrome.storage.local.get(['recent_blocks']);
-    const blocks = blocksResult.recent_blocks || [];
+    // Store recent events (keep last 50) with site type and behavior
+    const eventsResult = await chrome.storage.local.get(['recent_blocks']);
+    const events = eventsResult.recent_blocks || [];
     
-    blocks.push({
-      timestamp: blockData.timestamp || Date.now(),
-      matches: blockData.matches,
-      url: blockData.url,
-      type: blockData.type,
-      device_id: blockData.device_id || 'Unknown'
+    events.push({
+      timestamp: eventData.timestamp || Date.now(),
+      matches: eventData.matches,
+      url: eventData.url,
+      type: eventData.type,
+      device_id: eventData.device_id || 'Unknown',
+      site_type: eventData.site_type || 'unknown',
+      behavior: isWarning ? 'WARNING' : 'BLOCK'
     });
     
-    // Keep only last 50 blocks
-    if (blocks.length > 50) {
-      blocks.splice(0, blocks.length - 50);
+    // Keep only last 50 events
+    if (events.length > 50) {
+      events.splice(0, events.length - 50);
     }
     
-    await chrome.storage.local.set({ recent_blocks: blocks });
+    await chrome.storage.local.set({ recent_blocks: events });
     
     // Notify popup if open
     try {
@@ -305,4 +398,4 @@ setInterval(() => {
   fetchJWTToken();
 }, 30 * 60 * 1000);
 
-console.log("✅ AI DLP Browser Extension background script initialized");
+console.log("✅ AI DLP Browser Extension background script initialized with AI platform differentiation");

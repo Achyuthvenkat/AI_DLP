@@ -6,7 +6,7 @@
   <style>
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      max-width: 800px;
+      max-width: 900px;
       margin: 0 auto;
       padding: 20px;
       background: #f5f5f5;
@@ -178,6 +178,53 @@
       font-size: 12px;
       color: #666;
     }
+    
+    .behavior-explanation {
+      background: #e3f2fd;
+      border: 1px solid #2196F3;
+      border-radius: 6px;
+      padding: 16px;
+      margin-bottom: 20px;
+    }
+    
+    .behavior-item {
+      display: flex;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    
+    .behavior-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .behavior-icon {
+      margin-right: 8px;
+      font-size: 16px;
+    }
+    
+    .behavior-content {
+      flex: 1;
+    }
+    
+    .behavior-title {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 4px;
+    }
+    
+    .behavior-desc {
+      font-size: 13px;
+      color: #666;
+    }
+    
+    .platform-examples {
+      background: #f5f5f5;
+      padding: 8px 12px;
+      border-radius: 4px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #666;
+    }
   </style>
 </head>
 <body>
@@ -187,6 +234,7 @@
       AI DLP Browser Extension Settings
     </h1>
     
+    
     <div class="section">
       <h2>General Settings</h2>
       
@@ -195,15 +243,15 @@
           <input type="checkbox" id="enabled" checked>
           <label for="enabled">Enable DLP protection</label>
         </div>
-        <div class="help-text">When enabled, the extension will monitor and block sensitive data</div>
+        <div class="help-text">When enabled, the extension will monitor and block/warn about sensitive data</div>
       </div>
       
       <div class="form-group">
         <div class="checkbox-group">
           <input type="checkbox" id="notifications" checked>
-          <label for="notifications">Show notifications when data is blocked</label>
+          <label for="notifications">Show browser notifications</label>
         </div>
-        <div class="help-text">Display browser notifications when sensitive data is detected</div>
+        <div class="help-text">Display browser notifications when sensitive data is detected or blocked</div>
       </div>
       
       <div class="form-group">
@@ -211,7 +259,34 @@
           <input type="checkbox" id="popups" checked>
           <label for="popups">Show popup alerts on pages</label>
         </div>
-        <div class="help-text">Display popup alerts directly on web pages when data is blocked</div>
+        <div class="help-text">Display popup alerts directly on web pages when data is detected</div>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>AI Platform Configuration</h2>
+      
+      <div class="form-group">
+        <label for="ai-platforms">AI Platforms (BLOCK behavior - one per line)</label>
+        <textarea id="ai-platforms">chat.openai.com
+claude.ai
+bard.google.com
+gemini.google.com
+copilot.microsoft.com
+poe.com
+huggingface.co
+perplexity.ai
+deepseek.com
+anthropic.com
+chatgpt.com
+bing.com/chat
+you.com
+character.ai
+replika.ai
+jasper.ai
+writesonic.com
+copy.ai</textarea>
+        <div class="help-text">Sites where sensitive data will be completely blocked. Add custom AI platforms here.</div>
       </div>
     </div>
     
@@ -271,6 +346,14 @@
         
         <div class="rule-item">
           <div>
+            <div class="rule-name">TITAN Company Data</div>
+            <div class="rule-description">Company-specific confidential information and codes</div>
+          </div>
+          <input type="checkbox" id="rule-titan-data" checked>
+        </div>
+        
+        <div class="rule-item">
+          <div>
             <div class="rule-name">Confidential Keywords</div>
             <div class="rule-description">Documents marked as confidential, internal, restricted, etc.</div>
           </div>
@@ -286,22 +369,6 @@
         <label for="custom-keywords">Additional confidential keywords (one per line)</label>
         <textarea id="custom-keywords" placeholder="Enter custom keywords that should be flagged as confidential..."></textarea>
         <div class="help-text">Add your organization-specific confidential terms</div>
-      </div>
-    </div>
-    
-    <div class="section">
-      <h2>Blocked Websites</h2>
-      
-      <div class="form-group">
-        <label for="blocked-sites">AI/Chat websites to monitor (one per line)</label>
-        <textarea id="blocked-sites">chat.openai.com
-claude.ai
-bard.google.com
-gemini.google.com
-copilot.microsoft.com
-poe.com
-huggingface.co</textarea>
-        <div class="help-text">Extension will be more strict on these websites</div>
       </div>
     </div>
     

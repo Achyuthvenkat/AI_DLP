@@ -8,7 +8,6 @@ console.log('🔍 TITAN DLP Detectors loaded');
 // Indian Identity Documents
 const PAN_REGEX = /\b[A-Z]{5}[0-9]{4}[A-Z]\b/g;
 const AADHAAR_12 = /\b\d{4}[\s\-]?\d{4}[\s\-]?\d{4}\b/g;
-const AADHAAR_STRICT = /\b\d{12}\b/g;
 
 // Financial Data
 const CC_CANDIDATE = /\b(?:\d[ -]*?){13,19}\b/g;
@@ -27,8 +26,8 @@ const JWT_TOKEN = /\beyJ[A-Za-z0-9+/=_-]+\.[A-Za-z0-9+/=_-]+\.[A-Za-z0-9+/=_-]+\
 const PASSWORD_PATTERN = /\b(?:password|passwd|pwd)[\s=:]+[^\s]{6,}\b/gi;
 
 // Database and Server Credentials
-const DATABASE_URL = /\b(?:mongodb|mysql|postgresql|redis):\/\/[^\s]+\b/gi;
-const CONNECTION_STRING = /\b(?:server|host|database|user|password)[\s=:]+[^\s;]+/gi;
+const DATABASE_URL = /\b(?:mongodb|mysql|postgresql|redis):\/\/[^\s'"]+/gi;
+const CONNECTION_STRING = /\b(?:server|host|database|user|password)[\s=:]+("[^"]+"|'[^']+'|[^\s;]+)/gi;
 
 // =============================================================================
 // TITAN COMPANY LIMITED SPECIFIC PATTERNS

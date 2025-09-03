@@ -1,4 +1,4 @@
-// Popup functionality
+// Popup functionality with AI platform differentiation
 document.addEventListener('DOMContentLoaded', async function() {
   console.log('🔧 Popup loaded');
   
@@ -12,8 +12,21 @@ document.addEventListener('DOMContentLoaded', async function() {
     
     if (currentTab) {
       const url = new URL(currentTab.url);
-      document.getElementById('current-site').textContent = url.hostname;
-      console.log('📍 Current site:', url.hostname);
+      const hostname = url.hostname;
+      
+      // Check if it's an AI platform
+      const isAI = isAIPlatform(hostname);
+      const siteType = isAI ? 'AI Platform' : 'Business Site';
+      const behavior = isAI ? 'BLOCK' : 'WARN';
+      
+      document.getElementById('current-site').innerHTML = `
+        ${hostname}<br>
+        <span style="font-size: 10px; color: ${isAI ? '#f44336' : '#ff9800'};">
+          ${siteType} (${behavior})
+        </span>
+      `;
+      
+      console.log('📍 Current site:', hostname, 'Type:', siteType, 'Behavior:', behavior);
     }
   } catch (error) {
     console.error('Error getting current tab:', error);
@@ -61,6 +74,37 @@ document.addEventListener('DOMContentLoaded', async function() {
     }
   });
 });
+
+// AI Platform detection (same as in content script)
+const AI_PLATFORMS = [
+  'chat.openai.com',
+  'claude.ai',
+  'bard.google.com',
+  'gemini.google.com',
+  'copilot.microsoft.com',
+  'poe.com',
+  'huggingface.co',
+  'perplexity.ai',
+  'deepseek.com',
+  'anthropic.com',
+  'chatgpt.com',
+  'bing.com/chat',
+  'you.com',
+  'character.ai',
+  'replika.ai',
+  'jasper.ai',
+  'writesonic.com',
+  'copy.ai'
+];
+
+function isAIPlatform(hostname) {
+  const host = hostname.toLowerCase();
+  return AI_PLATFORMS.some(platform => 
+    host === platform || 
+    host.endsWith('.' + platform) || 
+    host.includes(platform.split('.')[0])
+  );
+}
 
 async function loadDeviceId() {
   try {
@@ -169,7 +213,12 @@ function showDeviceInput() {
 async function loadStats() {
   try {
     const result = await chrome.storage.local.get(['dlp_stats']);
-    const stats = result.dlp_stats || { blocks_today: 0, total_blocks: 0 };
+    const stats = result.dlp_stats || { 
+      blocks_today: 0, 
+      warnings_today: 0,
+      total_blocks: 0,
+      total_warnings: 0
+    };
     
     // Check if it's a new day
     const today = new Date().toDateString();
@@ -177,11 +226,19 @@ async function loadStats() {
     
     if (lastDate !== today) {
       stats.blocks_today = 0;
+      stats.warnings_today = 0;
       stats.last_date = today;
       await chrome.storage.local.set({ dlp_stats: stats });
     }
     
-    document.getElementById('blocks-today').textContent = stats.blocks_today || 0;
+    // Update the stats display to show both blocks and warnings
+    const totalToday = (stats.blocks_today || 0) + (stats.warnings_today || 0);
+    document.getElementById('blocks-today').innerHTML = `
+      ${totalToday}
+      <span style="font-size: 10px; color: #666;">
+        (${stats.blocks_today || 0} blocked, ${stats.warnings_today || 0} warned)
+      </span>
+    `;
   } catch (error) {
     console.error('Error loading stats:', error);
   }
@@ -190,30 +247,45 @@ async function loadStats() {
 async function loadRecentBlocks() {
   try {
     const result = await chrome.storage.local.get(['recent_blocks']);
-    const blocks = result.recent_blocks || [];
+    const events = result.recent_blocks || [];
     
     const container = document.getElementById('recent-blocks-list');
     
-    if (blocks.length === 0) {
+    if (events.length === 0) {
       container.innerHTML = `
         <div style="text-align: center; color: #999; font-size: 12px; padding: 20px 0;">
-          No recent blocks
+          No recent events
         </div>
       `;
       return;
     }
     
-    // Show last 5 blocks
-    const recentBlocks = blocks.slice(-5).reverse();
-    container.innerHTML = recentBlocks.map(block => `
-      <div class="block-item">
-        <div class="block-type">${block.matches.join(', ')}</div>
-        <div class="block-url">${new URL(block.url).hostname}</div>
-        <div style="color: #999; font-size: 11px;">${formatTime(block.timestamp)}</div>
-      </div>
-    `).join('');
+    // Show last 5 events
+    const recentEvents = events.slice(-5).reverse();
+    container.innerHTML = recentEvents.map(event => {
+      const isWarning = event.behavior === 'WARNING';
+      const borderColor = isWarning ? '#ff9800' : '#f44336';
+      const bgColor = isWarning ? '#fff8e1' : '#fff3e0';
+      const icon = isWarning ? '⚠️' : '🚨';
+      const action = isWarning ? 'WARNED' : 'BLOCKED';
+      
+      return `
+        <div class="block-item" style="background: ${bgColor}; border-left-color: ${borderColor};">
+          <div class="block-type" style="color: ${borderColor};">
+            ${icon} ${action}: ${event.matches.join(', ')}
+          </div>
+          <div class="block-url">
+            ${new URL(event.url).hostname}
+            <span style="color: #999; font-size: 10px;">
+              (${event.site_type === 'ai_platform' ? 'AI Platform' : 'Business Site'})
+            </span>
+          </div>
+          <div style="color: #999; font-size: 11px;">${formatTime(event.timestamp)}</div>
+        </div>
+      `;
+    }).join('');
   } catch (error) {
-    console.error('Error loading recent blocks:', error);
+    console.error('Error loading recent events:', error);
   }
 }
 

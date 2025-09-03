@@ -6,7 +6,7 @@
   <style>
     body {
       font-family: system-ui, -apple-system, sans-serif;
-      width: 320px;
+      width: 340px;
       padding: 16px;
       margin: 0;
     }
@@ -135,17 +135,26 @@
     .stat-item {
       display: flex;
       justify-content: space-between;
+      align-items: flex-start;
       padding: 8px 0;
       font-size: 14px;
     }
     
     .stat-label {
       color: #666;
+      flex-shrink: 0;
     }
     
     .stat-value {
       color: #333;
       font-weight: 500;
+      text-align: right;
+      flex: 1;
+    }
+    
+    .current-site-info {
+      text-align: right;
+      line-height: 1.3;
     }
     
     .actions {
@@ -201,23 +210,60 @@
       border-left: 3px solid #ff9800;
       margin-bottom: 6px;
       font-size: 12px;
+      border-radius: 0 4px 4px 0;
     }
     
     .block-type {
       font-weight: 600;
       color: #e65100;
+      margin-bottom: 2px;
     }
     
     .block-url {
       color: #666;
       margin-top: 2px;
       word-break: break-all;
+      line-height: 1.3;
     }
     
     .help-text {
       font-size: 11px;
       color: #666;
       margin-top: 4px;
+    }
+    
+    .legend {
+      margin-top: 8px;
+      padding: 8px;
+      background: #f9f9f9;
+      border-radius: 4px;
+      font-size: 11px;
+      color: #666;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+    
+    .legend-item:last-child {
+      margin-bottom: 0;
+    }
+    
+    .legend-color {
+      width: 12px;
+      height: 3px;
+      margin-right: 6px;
+      border-radius: 1px;
+    }
+    
+    .legend-ai {
+      background: #f44336;
+    }
+    
+    .legend-business {
+      background: #ff9800;
     }
   </style>
 </head>
@@ -247,12 +293,12 @@
   
   <div class="stats">
     <div class="stat-item">
-      <span class="stat-label">Blocks Today:</span>
+      <span class="stat-label">Events Today:</span>
       <span class="stat-value" id="blocks-today">0</span>
     </div>
     <div class="stat-item">
       <span class="stat-label">Current Site:</span>
-      <span class="stat-value" id="current-site">Protected</span>
+      <div class="stat-value current-site-info" id="current-site">Protected</div>
     </div>
   </div>
   
@@ -262,10 +308,21 @@
   </div>
   
   <div class="recent-blocks">
-    <div class="section-title">Recent Blocks</div>
+    <div class="section-title">Recent Events</div>
     <div id="recent-blocks-list">
       <div style="text-align: center; color: #999; font-size: 12px; padding: 20px 0;">
-        No recent blocks
+        No recent events
+      </div>
+    </div>
+    
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color legend-ai"></div>
+        <span>🚨 AI Platforms: Data blocked</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color legend-business"></div>
+        <span>⚠️ Business Sites: Warning only</span>
       </div>
     </div>
   </div>

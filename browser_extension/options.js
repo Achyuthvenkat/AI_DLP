@@ -1,4 +1,4 @@
-// Options page functionality
+// Options page functionality with AI platform configuration
 document.addEventListener('DOMContentLoaded', function() {
   loadSettings();
   
@@ -20,18 +20,30 @@ const DEFAULT_SETTINGS = {
     aadhaar: true,
     creditCard: true,
     apiKeys: true,
+    titanData: true,
     confidential: true
   },
-  customKeywords: [],
-  blockedSites: [
+  aiPlatforms: [
     'chat.openai.com',
     'claude.ai',
     'bard.google.com',
     'gemini.google.com',
     'copilot.microsoft.com',
     'poe.com',
-    'huggingface.co'
-  ]
+    'huggingface.co',
+    'perplexity.ai',
+    'deepseek.com',
+    'anthropic.com',
+    'chatgpt.com',
+    'bing.com/chat',
+    'you.com',
+    'character.ai',
+    'replika.ai',
+    'jasper.ai',
+    'writesonic.com',
+    'copy.ai'
+  ],
+  customKeywords: []
 };
 
 async function loadSettings() {
@@ -44,6 +56,9 @@ async function loadSettings() {
     document.getElementById('notifications').checked = settings.notifications;
     document.getElementById('popups').checked = settings.popups;
     
+    // Load AI platforms
+    document.getElementById('ai-platforms').value = settings.aiPlatforms.join('\n');
+    
     // Load server settings
     document.getElementById('server-url').value = settings.serverUrl;
     document.getElementById('server-reporting').checked = settings.serverReporting;
@@ -53,13 +68,11 @@ async function loadSettings() {
     document.getElementById('rule-aadhaar').checked = settings.rules.aadhaar;
     document.getElementById('rule-credit-card').checked = settings.rules.creditCard;
     document.getElementById('rule-api-keys').checked = settings.rules.apiKeys;
+    document.getElementById('rule-titan-data').checked = settings.rules.titanData !== undefined ? settings.rules.titanData : true;
     document.getElementById('rule-confidential').checked = settings.rules.confidential;
     
     // Load custom keywords
     document.getElementById('custom-keywords').value = settings.customKeywords.join('\n');
-    
-    // Load blocked sites
-    document.getElementById('blocked-sites').value = settings.blockedSites.join('\n');
     
   } catch (error) {
     console.error('Error loading settings:', error);
@@ -80,13 +93,14 @@ async function saveSettings() {
         aadhaar: document.getElementById('rule-aadhaar').checked,
         creditCard: document.getElementById('rule-credit-card').checked,
         apiKeys: document.getElementById('rule-api-keys').checked,
+        titanData: document.getElementById('rule-titan-data').checked,
         confidential: document.getElementById('rule-confidential').checked
       },
-      customKeywords: document.getElementById('custom-keywords').value
+      aiPlatforms: document.getElementById('ai-platforms').value
         .split('\n')
-        .map(line => line.trim())
+        .map(line => line.trim().toLowerCase())
         .filter(line => line.length > 0),
-      blockedSites: document.getElementById('blocked-sites').value
+      customKeywords: document.getElementById('custom-keywords').value
         .split('\n')
         .map(line => line.trim())
         .filter(line => line.length > 0)
@@ -107,19 +121,36 @@ async function saveSettings() {
       }
     }
     
-    showStatus('Settings saved successfully!', 'success');
+    // Also update the AI platforms in content scripts
+    await updateAIPlatformsInContentScripts(settings.aiPlatforms);
+    
+    showStatus('Settings saved successfully! Please refresh any open tabs for changes to take effect.', 'success');
   } catch (error) {
     console.error('Error saving settings:', error);
     showStatus('Error saving settings', 'error');
   }
 }
 
+async function updateAIPlatformsInContentScripts(aiPlatforms) {
+  const tabs = await chrome.tabs.query({});
+  for (const tab of tabs) {
+    try {
+      await chrome.tabs.sendMessage(tab.id, {
+        type: 'ai_platforms_updated',
+        aiPlatforms: aiPlatforms
+      });
+    } catch (error) {
+      // Ignore errors for tabs that don't have our content script
+    }
+  }
+}
+
 async function resetSettings() {
-  if (confirm('Are you sure you want to reset all settings to defaults?')) {
+  if (confirm('Are you sure you want to reset all settings to defaults? This will restore the default AI platform list and clear any custom configurations.')) {
     try {
       await chrome.storage.sync.set({ dlp_settings: DEFAULT_SETTINGS });
       loadSettings();
-      showStatus('Settings reset to defaults', 'success');
+      showStatus('Settings reset to defaults. Please refresh any open tabs.', 'success');
     } catch (error) {
       console.error('Error resetting settings:', error);
       showStatus('Error resetting settings', 'error');
@@ -166,8 +197,9 @@ function showStatus(message, type) {
   statusDiv.className = `status-message status-${type}`;
   statusDiv.style.display = 'block';
   
-  // Hide after 3 seconds
+  // Hide after 5 seconds for success, 8 seconds for errors
+  const timeout = type === 'success' ? 5000 : 8000;
   setTimeout(() => {
     statusDiv.style.display = 'none';
-  }, 3000);
+  }, timeout);
 }
