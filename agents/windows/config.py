@@ -130,6 +130,7 @@ EXCLUDE_DIRS = [
     r"temp",
     r".tmp",
     r".temp",
+    r"AppData\Roaming",
     r"AppData\Local\Temp",
     r"AppData\Local\Microsoft\Windows\Temporary Internet Files",
     # Docker and containers

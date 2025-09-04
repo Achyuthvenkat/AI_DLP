@@ -927,8 +927,6 @@ def scan_file(filepath: Path, force_scan=False):
         file_info = f"FILE: {filepath.name} ({ext.upper()}) | "
         combined_snippet = file_info + combined_snippet
     else:
-        with open("errors.txt", "a", encoding="utf-8") as error_file:
-            error_file.write(f"No sensitive content in {filepath}\n")
         combined_snippet = (
             f"FILE: {filepath.name} | No sensitive content context available"
         )
